@@ -413,6 +413,7 @@ font-size: 10px;    border-radius: 10px ;
                         Grado del polinomio: <input type="number" class="clgtxt" id="degree" min="1" max="10" value="2"> 
                     </div> 
                     <button class="clbg" onclick="calculateRegression()">Calcular Regresión</button> 
+                    <button class="clbg" id="idexpresionregresion">determinar valor</button> 
                     <div class="result-box"> 
                          
                         <h4 id="result">Resultado aparecerá aquí</h4> 
@@ -946,7 +947,7 @@ font-size: 10px;    border-radius: 10px ;
             
             document.getElementById('calc2DResult').innerHTML = result;
         }
-        
+        var resulregresiones=null;
         function calculateRegression() { 
             const pointsText = document.getElementById('points').value; 
             const degree = parseInt(document.getElementById('degree').value); 
@@ -998,7 +999,8 @@ font-size: 10px;    border-radius: 10px ;
                 resultElement.innerHTML = equation; 
                 resultElement2.textContent = equationAlt; 
                 plotRegression(points, equationAlt); 
-                calcualecuacion(equationAlt,parseFloat(prompt("number X ",6)));
+                resulregresiones=equationAlt;
+            
 
 
 
@@ -1274,6 +1276,10 @@ setTimeout(()=>{
 },2000);
 
 
+
+document.getElementById("idexpresionregresion").onclick=()=>{
+    calcualecuacion(resulregresiones,parseFloat(prompt("number X ",0)));
+}
 function calcualecuacion(ecuacion = "-3.7411x3 + 6.9464x2 + 28.3482x - 30.5536", x = 3) {
 
     if(!bool1Calcular){
