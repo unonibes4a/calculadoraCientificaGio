@@ -347,10 +347,42 @@ border: 0px solid #ffffff;
 
     font-size: 15px;
 }
+#idinf{
+position: absolute;
+top: 50%;
+left: 50%;
+
+transform: translate(-50%,-50%);
+width: 200px;
+height: 240px;
+background-color: #585858;
+border: 1px solid #ffffff;
+
+font-size: 10px;    border-radius: 10px ;
+ 
+
+    z-index: 2000;
+
+    color: #f0f0f0;
+
+    font-size: 17px;
+
+
+    padding: 30px;
+
+    display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+}
     </style> 
 </head> 
 <body class="clbg"> 
-
+<div id="idinf" class="">Puedes utilizar  esta calculador  para tus estudios y formación académica
+    Tendrá  3d   graficador   áreas  algebra ect
+     </div>
 
     <div id="idpanelbotonesmenu">
 <label class="clclassbootnes margincl" id="btpolinomios">P-Regr  </label>
@@ -428,7 +460,7 @@ border: 0px solid #ffffff;
             <div id="graph2D"></div> 
         </div> 
         
-       
+        <!-- Panel de Vectores 3D --> 
         <div class="panel cldisplanone"> 
             <h2>Operaciones Vectoriales 3D</h2> 
             <div class="vector-inputs"> 
@@ -451,7 +483,7 @@ border: 0px solid #ffffff;
             </div> 
         </div> 
         
-         
+     
         <div class="panel cldisplanone">  
             <h2>Gráfico 3D</h2> 
             <input type="text" id="equation3D" placeholder="Ej: sin(x)+cos(y)" value="sqrt(x^2 + y^2)"> 
@@ -1231,6 +1263,11 @@ async function copiarAlPortapapeles(inputTexto) {
         alert('No se pudo copiar el texto');
     }
 }
+
+setTimeout(()=>{
+
+    document.getElementById("idinf").style.display="none";
+},2000);
     </script>
 </body>
 </html>
