@@ -1,0 +1,1236 @@
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"> 
+    <title></title> 
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.6.0/lib/browser/math.min.js"></script> 
+    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script> 
+    <style>  
+
+
+:root { 
+    --primary: #4a6fa5; 
+    --secondary: #585858; 
+    --accent: #d8d8d8; 
+    --light: #cfcfcf; 
+    --dark: #1a2639; 
+} 
+
+body { 
+
+    position: absolute;
+    top: 0%;
+    left: 0%;
+
+    width: 100%;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: var(--light); 
+    color: var(--dark); 
+    margin: 0; 
+    padding: 20px; 
+    line-height: 1.6; 
+    background-color: #3b3b3b;
+} 
+
+.container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px; 
+    max-width: 1400px; 
+    margin: 0 auto; 
+    width: 100%;
+}   
+
+.panel { 
+    width: 100%;
+    min-width: 0; /* Permite que los paneles se reduzcan */
+ 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    padding: 15px; 
+    transition: transform 0.3s; 
+
+    border: 2px solid #636363;
+} 
+
+.panel:hover { 
+    transform: translateY(-5px); 
+} 
+
+h1, h2, h3, h4 { 
+    color: var(--secondary); 
+    margin-top: 0; 
+} 
+
+h1 { 
+    grid-column: 1 / -1; 
+    text-align: center; 
+    border-bottom: 2px solid var(--accent); 
+    padding-bottom: 10px; 
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+} 
+
+textarea, input, select, button { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 8px 0; 
+    border: 1px solid #ddd; 
+    border-radius: 5px; 
+    font-size: 16px; 
+    box-sizing: border-box;
+    background: #7d7d7d;
+} 
+
+button { 
+    background-color: var(--primary); 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    transition: background-color 0.3s; 
+    padding: 12px;
+
+    background: none;
+    border: 1px solid #ddd; 
+    border-radius:15px; 
+} 
+
+button:hover { 
+    background-color: var(--secondary); 
+} 
+
+#graph2D, #graph3D { 
+    width: 100%; 
+    height: 300px; 
+    background: white; 
+    border-radius: 8px; 
+} 
+
+.result-box { 
+    background-color: #0000006b; 
+    border-left: 4px solid var(--accent); 
+    padding: 5px; 
+    margin: 5px 0; 
+    border-radius: 0 5px 5px 0; 
+ 
+ 
+} 
+
+.vector-inputs { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; 
+} 
+
+.function-container {
+ /*    border: 1px solid #ddd; */
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+ /*    background-color: #f9f9f9; */
+}
+
+.function-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.function-color {
+    width: 30px;
+    height: 30px;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.btn-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.classtexto {
+    display: flex;
+    text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 1200px) {
+    .container {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+    
+    .vector-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .panel {
+        padding: 12px;
+    }
+    
+    #graph2D, #graph3D {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .btn-group {
+        grid-template-columns: 1fr;
+    }
+    
+    input, textarea, select, button {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    .function-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .function-color {
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    input[type="number"] {
+        width: 30%;
+    }
+}
+
+#idpanelbotonesmenu{
+
+    width: 60px;
+    height: 400px;
+    
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+
+    border-radius: 10px;
+
+    border: 1px solid #000000;
+
+    background-color: #00000056;
+
+    z-index: 1000;
+
+    position: fixed;
+    top: 50%;
+    left: 4px;
+    transform: translate(0,-50%);
+
+
+}
+.clclassbootnes{
+width: 45px;
+height: 45px;
+border-radius: 10px;
+background-color: #555555;
+border: 1px solid #ffffff;
+font-size: 10px;    border-radius: 50% ;
+display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
+color: #9b9b9b;
+ 
+}
+
+.clclassbootnes:hover{
+    color: #cecece;
+}
+
+
+.clpanelcontenedor{
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: #0000003b;
+ 
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+ 
+}
+
+.cldisplanone{
+    display: none;
+}
+.cldisplaview{
+ 
+    display: flex;
+    
+}
+
+ 
+.active{
+    color: white;
+}
+
+.margincl{
+    margin: 4px 4px 4px 4px;
+}
+.clgrid2{
+    display: grid; 
+  grid-template-columns: 0.15fr 0.85fr; 
+  grid-template-rows: 0.9fr; 
+  gap: 0px 0px; 
+ 
+
+}
+.classmasx{
+    width: 100%;
+    height: 100%;
+}
+.flexcolumna{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    gap: 1rem; 
+    align-items: stretch;  
+}
+
+.clasinputtext{
+    width: 80%;
+    height: 45pX;
+
+    border-radius: 10px;
+background-color: #969696;
+border: 0px solid #ffffff;
+
+}
+.clbg{
+    background-color: #353535;
+}
+
+.clgtxt{
+    color: #ffffff;
+
+    font-size: 15px;
+}
+    </style> 
+</head> 
+<body class="clbg"> 
+
+
+    <div id="idpanelbotonesmenu">
+<label class="clclassbootnes margincl" id="btpolinomios">P-Regr  </label>
+<label class="clclassbootnes margincl" id="btvec3d">vec3D </label>
+    </div>
+
+
+    <div class="clpanelcontenedor clbg"> 
+    <div class="container clbg"> 
+  
+ 
+        <div class="panel cldisplanone" id="pRegresion"> 
+
+            <div class="clgrid2 classmasx">
+
+                <div class="classmasx flexcolumna clbg">
+
+                
+                    <label  class="clgtxt">Regresión Polinómica</label>
+             
+
+
+                </div>
+                <div class="classmasx flexcolumna clbg">
+                      <textarea id="points" class="clgtxt" placeholder="Ingresa puntos como (1,1), (2,4), (3,9)">(1,1), (2,4), (3,9)</textarea>
+                    
+                      <div> 
+                        Grado del polinomio: <input type="number" class="clgtxt" id="degree" min="1" max="10" value="2"> 
+                    </div> 
+                    <button class="clbg" onclick="calculateRegression()">Calcular Regresión</button> 
+                    <div class="result-box"> 
+                         
+                        <h4 id="result">Resultado aparecerá aquí</h4> 
+                        <h4 id="result2">Forma alternativa aparecerá aquí</h4> 
+                    </div> 
+                    
+                    </div>
+
+                   
+            </div>
+           
+        </div> 
+ 
+        <div class="panel cldisplanone"> 
+            <h2>Gráfico 2D Avanzado</h2>
+            
+            <div> 
+                Rango X: <input type="number" id="xMin" value="-5" step="0.1"> a <input type="number" id="xMax" value="5" step="0.1"> 
+            </div>
+            
+            <div id="functions-container">
+                <div class="function-container" id="function-1">
+                    <div class="function-header">
+                        <span>Función 1</span>
+                        <input type="color" class="function-color" value="#00AA00">
+                    </div>
+                    <input type="text" class="equation2D" placeholder="Ej: x^2 + sin(x)" value="x^0.5">
+                </div>
+            </div>
+            
+            <button onclick="addFunction()">Añadir Función</button>
+            <button onclick="plot2D()">Graficar Funciones</button>
+            
+            <div class="btn-group">
+                <button onclick="findIntersections()">Calcular Intersecciones</button>
+                <button onclick="findRoots()">Calcular Raíces</button>
+                <button onclick="calculateArea()">Área Bajo Curva</button>
+                <button onclick="calculateAreaBetween()">Área Entre Funciones</button>
+            </div>
+            
+            <div class="result-box"> 
+                <h4 id="calc2DResult">Resultados de cálculos 2D</h4> 
+            </div>
+            
+            <div id="graph2D"></div> 
+        </div> 
+        
+       
+        <div class="panel cldisplanone"> 
+            <h2>Operaciones Vectoriales 3D</h2> 
+            <div class="vector-inputs"> 
+                <div> 
+                    <h3>Vector A</h3> 
+                    <input type="number" id="aX" placeholder="X" value="1" step="any"> 
+                    <input type="number" id="aY" placeholder="Y" value="2" step="any"> 
+                    <input type="number" id="aZ" placeholder="Z" value="3" step="any"> 
+                </div> 
+                <div> 
+                    <h3>Vector B</h3> 
+                    <input type="number" id="bX" placeholder="X" value="4" step="any"> 
+                    <input type="number" id="bY" placeholder="Y" value="5" step="any"> 
+                    <input type="number" id="bZ" placeholder="Z" value="6" step="any"> 
+                </div> 
+            </div> 
+            <button onclick="calculateVectors()">Calcular Operaciones</button> 
+            <div class="result-box"> 
+                <h3 id="vectorResult"></h3> 
+            </div> 
+        </div> 
+        
+         
+        <div class="panel cldisplanone">  
+            <h2>Gráfico 3D</h2> 
+            <input type="text" id="equation3D" placeholder="Ej: sin(x)+cos(y)" value="sqrt(x^2 + y^2)"> 
+            <div> 
+                Rango: <input type="number" id="range3D" value="5" step="0.1"> 
+            </div> 
+            <button onclick="plot3D()">Graficar 3D</button> 
+            <div id="graph3D"></div> 
+        </div> 
+    </div> 
+</div>
+    <script> 
+        let functionCount = 1;
+        let plotData = [];
+        
+        function addFunction() {
+            functionCount++;
+            const container = document.getElementById('functions-container');
+            const div = document.createElement('div');
+            div.className = 'function-container';
+            div.id = `function-${functionCount}`;
+            
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            
+            div.innerHTML = `
+                <div class="function-header">
+                    <span>Función ${functionCount}</span>
+                    <input type="color" class="function-color" value="${randomColor}">
+                </div>
+                <input type="text" class="equation2D" placeholder="Ej: x^2 + sin(x)" value="sin(x)">
+            `;
+            
+            container.appendChild(div);
+        }
+        
+        function getPlotData() {
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            const step = (xMax - xMin) / 500;
+            
+            const functions = document.getElementsByClassName('equation2D');
+            const colors = document.getElementsByClassName('function-color');
+            
+            const data = [];
+            
+            for (let i = 0; i < functions.length; i++) {
+                const equation = functions[i].value.trim();
+                if (!equation) continue;
+                
+                const xValues = [];
+                const yValues = [];
+                const discontinuities = [];
+                
+                for (let x = xMin; x <= xMax; x += step) {
+                    try {
+                        const y = math.evaluate(equation.replace(/x/g, `(${x})`));
+                        
+                        if (!isFinite(y) || isNaN(y)) {
+                            if (xValues.length > 0) {
+                                discontinuities.push({x: xValues, y: yValues});
+                                xValues.length = 0;
+                                yValues.length = 0;
+                            }
+                            continue;
+                        }
+                        
+                        xValues.push(x);
+                        yValues.push(y);
+                    } catch (e) {
+                        console.error("Error evaluando ecuación:", e);
+                    }
+                }
+                
+                if (xValues.length > 0) {
+                    discontinuities.push({x: xValues, y: yValues});
+                }
+                
+                for (let j = 0; j < discontinuities.length; j++) {
+                    data.push({
+                        x: discontinuities[j].x,
+                        y: discontinuities[j].y,
+                        mode: 'lines',
+                        type: 'scatter',
+                        name: `${equation} (${j+1})`,
+                        line: { color: colors[i].value }
+                    });
+                }
+            }
+            
+            return data;
+        }
+        
+        function plot2D() {
+            plotData = getPlotData();
+            if (plotData.length === 0) return;
+            
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            
+            Plotly.newPlot('graph2D', plotData, {
+                title: 'Gráfico de Funciones',
+                xaxis: { title: 'X', range: [xMin, xMax] },
+                yaxis: { title: 'Y' },
+                margin: { t: 40 }
+            });
+            
+            document.getElementById('calc2DResult').textContent = "Gráfico actualizado";
+        }
+        
+        function findIntersections() {
+            const functions = document.getElementsByClassName('equation2D');
+            if (functions.length < 2) {
+                document.getElementById('calc2DResult').textContent = "Se necesitan al menos 2 funciones para calcular intersecciones";
+                return;
+            }
+            
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            const step = (xMax - xMin) / 1000;
+            
+            let intersections = [];
+            
+            for (let i = 0; i < functions.length; i++) {
+                for (let j = i + 1; j < functions.length; j++) {
+                    const eq1 = functions[i].value.trim();
+                    const eq2 = functions[j].value.trim();
+                    
+                    if (!eq1 || !eq2) continue;
+                    
+                    for (let x = xMin; x <= xMax; x += step) {
+                        try {
+                            const y1 = math.evaluate(eq1.replace(/x/g, `(${x})`));
+                            const y2 = math.evaluate(eq2.replace(/x/g, `(${x})`));
+                            
+                            if (Math.abs(y1 - y2) < 0.01) {
+                                const prevX = x - step;
+                                const nextX = x + step;
+                                
+                                if (prevX >= xMin) {
+                                    const prevY1 = math.evaluate(eq1.replace(/x/g, `(${prevX})`));
+                                    const prevY2 = math.evaluate(eq2.replace(/x/g, `(${prevX})`));
+                                    
+                                    if (Math.abs(prevY1 - prevY2) >= 0.01) {
+                                        intersections.push({
+                                            x: x.toFixed(4),
+                                            y: y1.toFixed(4),
+                                            eq1: eq1,
+                                            eq2: eq2
+                                        });
+                                    }
+                                } else {
+                                    intersections.push({
+                                        x: x.toFixed(4),
+                                        y: y1.toFixed(4),
+                                        eq1: eq1,
+                                        eq2: eq2
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Error al buscar intersecciones:", e);
+                        }
+                    }
+                }
+            }
+            
+            let result = "Intersecciones encontradas:";
+            if (intersections.length === 0) {
+                result = "No se encontraron intersecciones en el rango especificado";
+            } else {
+                for (let i = 0; i < intersections.length; i++) {
+                    const p = intersections[i];
+                    result += `<br>• (${p.x}, ${p.y}) - Entre "${p.eq1}" y "${p.eq2}"`;
+                }
+                
+                const intersectionPoints = {
+                    x: intersections.map(p => parseFloat(p.x)),
+                    y: intersections.map(p => parseFloat(p.y)),
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Intersecciones',
+                    marker: {
+                        size: 8,
+                        color: 'red',
+                        symbol: 'circle'
+                    }
+                };
+                
+                const newData = [...plotData, intersectionPoints];
+                Plotly.newPlot('graph2D', newData);
+            }
+            
+            document.getElementById('calc2DResult').innerHTML = result;
+        }
+        
+        function findRoots() {
+            const functions = document.getElementsByClassName('equation2D');
+            if (functions.length === 0) {
+                document.getElementById('calc2DResult').textContent = "No hay funciones para calcular raíces";
+                return;
+            }
+            
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            const step = (xMax - xMin) / 1000;
+            
+            let allRoots = [];
+            
+            for (let i = 0; i < functions.length; i++) {
+                const equation = functions[i].value.trim();
+                if (!equation) continue;
+                
+                const roots = [];
+                
+                for (let x = xMin; x <= xMax; x += step) {
+                    try {
+                        const y = math.evaluate(equation.replace(/x/g, `(${x})`));
+                        
+                        if (Math.abs(y) < 0.001) {
+                            const prevX = x - step;
+                            if (prevX >= xMin) {
+                                const prevY = math.evaluate(equation.replace(/x/g, `(${prevX})`));
+                                if (Math.abs(prevY) >= 0.001 || prevY * y <= 0) {
+                                    roots.push({
+                                        x: x.toFixed(4),
+                                        equation: equation
+                                    });
+                                }
+                            } else {
+                                roots.push({
+                                    x: x.toFixed(4),
+                                    equation: equation
+                                });
+                            }
+                        } else {
+                            const prevX = x - step;
+                            if (prevX >= xMin) {
+                                const prevY = math.evaluate(equation.replace(/x/g, `(${prevX})`));
+                                if (prevY * y <= 0) {
+                                    const root = prevX - prevY * (step / (y - prevY));
+                                    roots.push({
+                                        x: root.toFixed(4),
+                                        equation: equation
+                                    });
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error al buscar raíces:", e);
+                    }
+                }
+                
+                allRoots = [...allRoots, ...roots];
+            }
+            
+            let result = "Raíces encontradas:";
+            if (allRoots.length === 0) {
+                result = "No se encontraron raíces en el rango especificado";
+            } else {
+                const rootsPoints = {
+                    x: [],
+                    y: [],
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Raíces',
+                    marker: {
+                        size: 8,
+                        color: 'blue',
+                        symbol: 'x'
+                    }
+                };
+                
+                for (let i = 0; i < allRoots.length; i++) {
+                    const r = allRoots[i];
+                    result += `<br>• x = ${r.x} para "${r.equation}"`;
+                    rootsPoints.x.push(parseFloat(r.x));
+                    rootsPoints.y.push(0);
+                }
+                
+                const newData = [...plotData, rootsPoints];
+                Plotly.newPlot('graph2D', newData);
+            }
+            
+            document.getElementById('calc2DResult').innerHTML = result;
+        }
+        
+        function calculateArea() {
+            const functions = document.getElementsByClassName('equation2D');
+            if (functions.length === 0) {
+                document.getElementById('calc2DResult').textContent = "No hay funciones para calcular área";
+                return;
+            }
+            
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            if (xMin >= xMax) {
+                document.getElementById('calc2DResult').textContent = "El rango de X no es válido para calcular área";
+                return;
+            }
+            
+            let results = [];
+            
+            for (let i = 0; i < functions.length; i++) {
+                const equation = functions[i].value.trim();
+                if (!equation) continue;
+                
+                try {
+                    const numPoints = 1000;
+                    const step = (xMax - xMin) / numPoints;
+                    let area = 0;
+                    
+                    for (let j = 0; j < numPoints; j++) {
+                        const x1 = xMin + j * step;
+                        const x2 = x1 + step;
+                        const y1 = math.evaluate(equation.replace(/x/g, `(${x1})`));
+                        const y2 = math.evaluate(equation.replace(/x/g, `(${x2})`));
+                        
+                        if (isFinite(y1) && isFinite(y2)) {
+                            area += (y1 + y2) * step / 2;
+                        }
+                    }
+                    
+                    results.push({
+                        equation: equation,
+                        area: Math.abs(area).toFixed(4)
+                    });
+                    
+                    const fillX = [];
+                    const fillY = [];
+                    
+                    for (let x = xMin; x <= xMax; x += step) {
+                        try {
+                            const y = math.evaluate(equation.replace(/x/g, `(${x})`));
+                            if (isFinite(y)) {
+                                fillX.push(x);
+                                fillY.push(y);
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    if (fillX.length > 0) {
+                        fillX.push(fillX[fillX.length - 1]);
+                        fillY.push(0);
+                        fillX.push(fillX[0]);
+                        fillY.push(0);
+                        
+                        const fillTrace = {
+                            x: fillX,
+                            y: fillY,
+                            fill: 'tozeroy',
+                            type: 'scatter',
+                            name: `Área de ${equation}`,
+                            fillcolor: 'rgba(0, 150, 0, 0.2)',
+                            line: { width: 0 }
+                        };
+                        
+                        const newData = [...plotData, fillTrace];
+                        Plotly.newPlot('graph2D', newData);
+                    }
+                } catch (e) {
+                    console.error("Error al calcular área:", e);
+                }
+            }
+            
+            let result = "Áreas bajo la curva:";
+            if (results.length === 0) {
+                result = "No se pudo calcular ningún área";
+            } else {
+                for (let i = 0; i < results.length; i++) {
+                    const r = results[i];
+                    result += `<br>• Área de "${r.equation}" = ${r.area} unidades cuadradas`;
+                }
+            }
+            
+            document.getElementById('calc2DResult').innerHTML = result;
+        }
+        
+        function calculateAreaBetween() {
+            const functions = document.getElementsByClassName('equation2D');
+            if (functions.length < 2) {
+                document.getElementById('calc2DResult').textContent = "Se necesitan al menos 2 funciones para calcular área entre ellas";
+                return;
+            }
+            
+            const xMin = parseFloat(document.getElementById('xMin').value);
+            const xMax = parseFloat(document.getElementById('xMax').value);
+            if (xMin >= xMax) {
+                document.getElementById('calc2DResult').textContent = "El rango de X no es válido para calcular área";
+                return;
+            }
+            
+            let results = [];
+            
+            for (let i = 0; i < functions.length; i++) {
+                for (let j = i + 1; j < functions.length; j++) {
+                    const eq1 = functions[i].value.trim();
+                    const eq2 = functions[j].value.trim();
+                    
+                    if (!eq1 || !eq2) continue;
+                    
+                    try {
+                        const numPoints = 1000;
+                        const step = (xMax - xMin) / numPoints;
+                        let area = 0;
+                        
+                        const fillX = [];
+                        const fillY1 = [];
+                        const fillY2 = [];
+                        
+                        for (let k = 0; k <= numPoints; k++) {
+                            const x = xMin + k * step;
+                            try {
+                                const y1 = math.evaluate(eq1.replace(/x/g, `(${x})`));
+                                const y2 = math.evaluate(eq2.replace(/x/g, `(${x})`));
+                                
+                                if (isFinite(y1) && isFinite(y2)) {
+                                    area += (y1 - y2) * step;
+                                    fillX.push(x);
+                                    fillY1.push(y1);
+                                    fillY2.push(y2);
+                                }
+                            } catch (e) {}
+                        }
+                        
+                        results.push({
+                            eq1: eq1,
+                            eq2: eq2,
+                            area: Math.abs(area).toFixed(4)
+                        });
+                        
+                        if (fillX.length > 0) {
+                            const fillTrace = {
+                                x: [...fillX, ...fillX.slice().reverse()],
+                                y: [...fillY1, ...fillY2.slice().reverse()],
+                                fill: 'toself',
+                                type: 'scatter',
+                                name: `Área entre ${eq1} y ${eq2}`,
+                                fillcolor: 'rgba(255, 0, 0, 0.2)',
+                                line: { width: 0 }
+                            };
+                            
+                            const newData = [...plotData, fillTrace];
+                            Plotly.newPlot('graph2D', newData);
+                        }
+                    } catch (e) {
+                        console.error("Error al calcular área entre funciones:", e);
+                    }
+                }
+            }
+            
+            let result = "Áreas entre funciones:";
+            if (results.length === 0) {
+                result = "No se pudo calcular ningún área entre funciones";
+            } else {
+                for (let i = 0; i < results.length; i++) {
+                    const r = results[i];
+                    result += `<br>• Área entre "${r.eq1}" y "${r.eq2}" = ${r.area} unidades cuadradas`;
+                }
+            }
+            
+            document.getElementById('calc2DResult').innerHTML = result;
+        }
+        
+        function calculateRegression() { 
+            const pointsText = document.getElementById('points').value; 
+            const degree = parseInt(document.getElementById('degree').value); 
+            const resultElement = document.getElementById('result'); 
+            const resultElement2 = document.getElementById('result2'); 
+            try { 
+                const points = []; 
+                const pointRegex = /\(([^,]+),\s*([^)]+)\)/g; 
+                let match; 
+                while ((match = pointRegex.exec(pointsText)) !== null) { 
+                    const x = parseFloat(match[1]); 
+                    const y = parseFloat(match[2]); 
+                    points.push({ x, y }); 
+                } 
+                if (points.length === 0) throw new Error("No se encontraron puntos válidos"); 
+                const X = []; 
+                const Y = []; 
+                for (let i = 0; i <= degree; i++) { 
+                    X[i] = []; 
+                    for (let j = 0; j <= degree; j++) { 
+                        X[i][j] = points.reduce((sum, point) => sum + Math.pow(point.x, i + j), 0); 
+                    } 
+                    Y[i] = points.reduce((sum, point) => sum + point.y * Math.pow(point.x, i), 0); 
+                } 
+                const coefficients = math.lusolve(X, Y); 
+                let equation = "y = "; 
+                let equationAlt = "y = "; 
+                for (let i = degree; i >= 0; i--) { 
+                    const coeff = coefficients[i][0]; 
+                    if (Math.abs(coeff) < 1e-10) continue; 
+                    if (i === degree) { 
+                        equation += `${coeff.toFixed(4)}x<sup>${i}</sup> `; 
+                        equationAlt += `${coeff.toFixed(4)}*x^${i} `; 
+                    } else { 
+                        const operator = coeff >= 0 ? '+' : '-'; 
+                        const absCoeff = Math.abs(coeff).toFixed(4); 
+                        if (i > 1) { 
+                            equation += `${operator} ${absCoeff}x<sup>${i}</sup> `; 
+                            equationAlt += `${operator} ${absCoeff}*x^${i} `; 
+                        } else if (i === 1) { 
+                            equation += `${operator} ${absCoeff}x `; 
+                            equationAlt += `${operator} ${absCoeff}*x `; 
+                        } else { 
+                            equation += `${operator} ${absCoeff}`; 
+                            equationAlt += `${operator} ${absCoeff}`; 
+                        } 
+                    } 
+                } 
+                resultElement.innerHTML = equation; 
+                resultElement2.textContent = equationAlt; 
+                plotRegression(points, equationAlt); 
+            } catch (error) { 
+                resultElement.textContent = `Error: ${error.message}`; 
+                resultElement2.textContent = ""; 
+            } 
+        } 
+
+        function plotRegression(points, equation) { 
+            if (!equation) return; 
+            const xValues = points.map(p => p.x); 
+            const yValues = points.map(p => p.y); 
+            const xMin = Math.min(...xValues); 
+            const xMax = Math.max(...xValues); 
+            const step = (xMax - xMin) / 100; 
+            const regressionX = []; 
+            const regressionY = []; 
+            for (let x = xMin; x <= xMax; x += step) { 
+                try { 
+                    const y = math.evaluate(equation.replace(/x/g, `(${x})`)); 
+                    regressionX.push(x); 
+                    regressionY.push(y); 
+                
+
+            } catch (e) { }
+            }
+            const tracePoints = {
+                x: xValues,
+                y: yValues,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Datos',
+                marker: {
+                    size: 10,
+                    color: 'red'
+                }
+            };
+            const traceRegression = {
+                x: regressionX,
+                y: regressionY,
+                mode: 'lines',
+                type: 'scatter',
+                name: 'Regresión',
+                line: {
+                    color: 'blue'
+                }
+            };
+            Plotly.newPlot('graph2D', [tracePoints, traceRegression], {
+                title: 'Regresión Polinómica',
+                xaxis: {
+                    title: 'X'
+                },
+                yaxis: {
+                    title: 'Y'
+                },
+                margin: {
+                    t: 40
+                }
+            });
+        }
+
+        function calculateVectors() {
+            const aX = parseFloat(document.getElementById('aX').value);
+            const aY = parseFloat(document.getElementById('aY').value);
+            const aZ = parseFloat(document.getElementById('aZ').value);
+            const bX = parseFloat(document.getElementById('bX').value);
+            const bY = parseFloat(document.getElementById('bY').value);
+            const bZ = parseFloat(document.getElementById('bZ').value);
+            if (isNaN(aX) || isNaN(aY) || isNaN(aZ) || isNaN(bX) || isNaN(bY) || isNaN(bZ)) {
+                document.getElementById('vectorResult').textContent = "Ingresa valores válidos";
+                return;
+            }
+            const dotProduct = aX * bX + aY * bY + aZ * bZ;
+            const crossX = aY * bZ - aZ * bY;
+            const crossY = aZ * bX - aX * bZ;
+            const crossZ = aX * bY - aY * bX;
+            const magA = Math.sqrt(aX * aX + aY * aY + aZ * aZ);
+            const magB = Math.sqrt(bX * bX + bY * bY + bZ * bZ);
+            const angle = Math.acos(dotProduct / (magA * magB)) * (180 / Math.PI);
+            const result = ` Producto Punto: ${dotProduct.toFixed(4)}<br> Producto Cruz: (${crossX.toFixed(4)}, ${crossY.toFixed(4)}, ${crossZ.toFixed(4)})<br> Ángulo: ${angle.toFixed(2)}° `;
+            document.getElementById('vectorResult').innerHTML = result;
+            plotVectors3D(aX, aY, aZ, bX, bY, bZ);
+        }
+
+        function plotVectors3D(aX, aY, aZ, bX, bY, bZ) {
+            const traceA = {
+                x: [0, aX],
+                y: [0, aY],
+                z: [0, aZ],
+                mode: 'lines',
+                type: 'scatter3d',
+                name: 'Vector A',
+                line: {
+                    color: 'red',
+                    width: 8
+                }
+            };
+            const traceB = {
+                x: [0, bX],
+                y: [0, bY],
+                z: [0, bZ],
+                mode: 'lines',
+                type: 'scatter3d',
+                name: 'Vector B',
+                line: {
+                    color: 'blue',
+                    width: 8
+                }
+            };
+            const crossX = aY * bZ - aZ * bY;
+            const crossY = aZ * bX - aX * bZ;
+            const crossZ = aX * bY - aY * bX;
+            const traceCross = {
+                x: [0, crossX],
+                y: [0, crossY],
+                z: [0, crossZ],
+                mode: 'lines',
+                type: 'scatter3d',
+                name: 'Producto Cruz',
+                line: {
+                    color: 'green',
+                    width: 8
+                }
+            };
+            Plotly.newPlot('graph3D', [traceA, traceB, traceCross], {
+                title: 'Vectores 3D',
+                scene: {
+                    xaxis: {
+                        title: 'X'
+                    },
+                    yaxis: {
+                        title: 'Y'
+                    },
+                    zaxis: {
+                        title: 'Z'
+                    }
+                },
+                margin: {
+                    t: 40
+                }
+            });
+        }
+
+        function plot3D() {
+            const equation = document.getElementById('equation3D').value;
+            const range = parseFloat(document.getElementById('range3D').value);
+            if (!equation || isNaN(range)) return;
+            const step = range / 20;
+            const xValues = [];
+            const yValues = [];
+            const zValues = [];
+            for (let x = -range; x <= range; x += step) {
+                for (let y = -range; y <= range; y += step) {
+                    try {
+                        const z = math.evaluate(equation
+                            .replace(/x/g, `(${x})`)
+                            .replace(/y/g, `(${y})`));
+                        xValues.push(x);
+                        yValues.push(y);
+                        zValues.push(z);
+                    } catch (e) {
+                        console.error("Error evaluando ecuación:", e);
+                    }
+                }
+            }
+            const trace = {
+                x: xValues,
+                y: yValues,
+                z: zValues,
+                mode: 'markers',
+                type: 'scatter3d',
+                marker: {
+                    size: 2,
+                    color: zValues,
+                    colorscale: 'Viridis',
+                    opacity: 0.8
+                }
+            };
+            Plotly.newPlot('graph3D', [trace], {
+                title: `Superficie 3D: ${equation}`,
+                scene: {
+                    xaxis: {
+                        title: 'X'
+                    },
+                    yaxis: {
+                        title: 'Y'
+                    },
+                    zaxis: {
+                        title: 'Z'
+                    }
+                },
+                margin: {
+                    t: 40
+                }
+            });
+        }
+ 
+window.addEventListener('resize', function() {
+    Plotly.Plots.resize('graph2D');
+    Plotly.Plots.resize('graph3D');
+});
+        window.onload = function() {
+            calculateRegression();
+            plot2D();
+            calculateVectors();
+        };
+
+
+
+
+function btactivo(e){
+    const allButtons = document.querySelectorAll('.clclassbootnes');
+    allButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    console.log(e,'e');
+  
+    e.target.classList.add('active');
+}
+
+
+ 
+document.getElementById("btvec3d").onclick=(e)=>{
+    toggleElement(null  );
+    btactivo(e);
+}
+
+
+let panelPolinomiroregresion=document.getElementById("pRegresion");
+document.getElementById("btpolinomios").onclick=(e)=>{
+    toggleElement(panelPolinomiroregresion  );
+    btactivo(e);
+}
+
+
+
+        function toggleElement(elemento,classGetelementos="panel",classcssnone="cldisplanone",classview="cldisplaview") {
+ 
+    const todosElementos = document.querySelectorAll("."+classGetelementos);
+    todosElementos.forEach(el => {
+
+        el.classList.remove(classview);
+        el.classList.add(classcssnone);
+     
+    });
+    
+ 
+if(elemento){   elemento.classList.add(classview);}
+  
+}
+
+async function copiarAlPortapapeles(inputTexto) {
+ 
+    
+    try {
+        await navigator.clipboard.writeText(inputTexto.value);
+        
+        const notificacion = document.getElementById('notificacion');
+        notificacion.style.opacity = '1';
+        setTimeout(() => {
+            notificacion.style.opacity = '0';
+        }, 2000);
+    } catch (err) {
+        console.error('Error al copiar: ', err);
+        alert('No se pudo copiar el texto');
+    }
+}
+    </script>
+</body>
+</html>
