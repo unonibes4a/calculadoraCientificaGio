@@ -1250,7 +1250,7 @@ document.getElementById("btpolinomios").onclick=(e)=>{
 if(elemento){   elemento.classList.add(classview);}
   
 }
-
+var bool1Calcular=true;
 async function copiarAlPortapapeles(inputTexto) {
  
     
@@ -1275,7 +1275,9 @@ setTimeout(()=>{
 
 
 function calcualecuacion(ecuacion = "-3.7411x3 + 6.9464x2 + 28.3482x - 30.5536", x = 3) {
-    
+
+    if(!bool1Calcular){
+        
     let formula = ecuacion.replace(/^\s*y\s*=\s*/, "");
     
  
@@ -1303,6 +1305,11 @@ function calcualecuacion(ecuacion = "-3.7411x3 + 6.9464x2 + 28.3482x - 30.5536",
         console.error("Error en la fórmula:", formula);
         return `Error al evaluar la ecuación: ${error.message}`;
     }
+    }
+    else{
+        bool1Calcular=false;
+    }
+     
 }
 
 // Ejemplos de uso
