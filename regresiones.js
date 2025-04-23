@@ -121,7 +121,7 @@ border-radius: 13px;` ),
             }
             
             .regpoly-button {
-                background-color:rgba(160, 160, 160, 0.63);
+                background-color:rgb(43, 43, 43);
                 color: white;
                 padding: 10px 15px;
                 border: none;
@@ -132,13 +132,13 @@ border-radius: 13px;` ),
             }
             
             .regpoly-button:hover {
-                background-color:rgba(150, 150, 150, 0.51);
+                background-color:rgb(43, 43, 43);
             }
             
             .regpoly-resultado {
                 margin-top: 20px;
                 padding: 15px;
-                background-color:rgba(249, 249, 249, 0.48);
+                background-color:rgb(43, 43, 43);
                 border-radius: 5px;
                 border-left: 4px solidrgba(179, 179, 179, 0.68);
             }
@@ -158,6 +158,7 @@ border-radius: 13px;` ),
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 15px;
+                color.rgb(0, 0, 0);,
             }
             
             .regpoly-table th, .regpoly-table td {
@@ -167,11 +168,11 @@ border-radius: 13px;` ),
             }
             
             .regpoly-table th {
-                background-color: #f2f2f2;
+                background-color:rgb(43, 43, 43);
             }
             
             .regpoly-table tr:nth-child(even) {
-                background-color: #f9f9f9;
+                background-color:rgb(43, 43, 43);
             }
             
             .regpoly-error {
