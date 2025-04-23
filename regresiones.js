@@ -34,7 +34,7 @@ border-radius: 13px;` ),
         this.inicializarEventos();
         
    
-        this.inputElement.value = "1,1.2\n2,1.9\n3,3.2\n4,4.8\n5,6.2\n6,7.5\n7,9.1";
+        this.inputElement.value = "1,1.2\n2,1.9\n3,3.2\n4,5\n5,6.2\n6,7.5\n7,9.1";
     }
     
 
