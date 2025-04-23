@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title></title>
-    <!--  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.6.0/lib/browser/math.min.js"></script> 
-    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>  -->
+     <script src="https://cdn.jsdelivr.net/npm/mathjs@11.6.0/lib/browser/math.min.js"></script> 
+    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>   
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+   <!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.2/plotly.min.js"></script>
-
+ -->
 
     <style>
 
@@ -1306,17 +1306,18 @@
                         Y[i] = points.reduce((sum, point) => sum + point.y * Math.pow(point.x, i), 0);
                     }
                     const coefficients = math.lusolve(X, Y);
+                    let presicion=15;
                     let equation = "y = ";
                     let equationAlt = "y = ";
                     for (let i = degree; i >= 0; i--) {
                         const coeff = coefficients[i][0];
                         if (Math.abs(coeff) < 1e-10) continue;
                         if (i === degree) {
-                            equation += `${coeff.toFixed(4)}x<sup>${i}</sup> `;
-                            equationAlt += `${coeff.toFixed(4)}*x^${i} `;
+                            equation += `${coeff.toFixed(presicion)}x<sup>${i}</sup> `;
+                            equationAlt += `${coeff.toFixed(presicion)}*x^${i} `;
                         } else {
                             const operator = coeff >= 0 ? '+' : '-';
-                            const absCoeff = Math.abs(coeff).toFixed(4);
+                            const absCoeff = Math.abs(coeff).toFixed(presicion);
                             if (i > 1) {
                                 equation += `${operator} ${absCoeff}x<sup>${i}</sup> `;
                                 equationAlt += `${operator} ${absCoeff}*x^${i} `;
