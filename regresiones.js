@@ -109,7 +109,22 @@ border-radius: 13px;` ),
                 border: 1px solid #ddd;
                 border-radius: 8px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+ display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: stretch;
+	align-content: stretch;
+
+
+    height: fit-content;
+
             }
+    .regpoly-container *{
+     width: 80&;
+margin: auto;
+padding: auto;
+    }
             
             .regpoly-container textarea {
                 width: 100%;
@@ -118,6 +133,7 @@ border-radius: 13px;` ),
                 padding: 10px;
                 border-radius: 5px;
                 border: 1px solid #ccc;
+                
             }
             
             .regpoly-button {
