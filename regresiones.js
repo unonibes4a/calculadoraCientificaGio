@@ -69,7 +69,7 @@ border-radius: 13px;` ),
             <div class="regpoly-container">
                 <h1>Regresión Lineal Polinómica</h1>
                 <p>Ingrese los datos en formato "x,y" (un par por línea):</p>
-                <textarea id="inputDatos" placeholder="1,2&#10;2,4&#10;3,6&#10;4,8"></textarea>
+                <textarea id="inputDatos" placeholder="1,2&#10;2,4&#10;3,6&#10;4,8"    inputmode="numeric" ></textarea>
                 
                 <div>
                     <label for="gradoPolinomio">Grado del polinomio:</label>
