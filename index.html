@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MathStudio Pro - Entorno Matemático & Mallas 3D</title>
+    <title>MathStudio Pro HD - Entorno Matemático & Físico Completo</title>
 
-    <!-- Librerías de Cálculo y Gráficas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.2/plotly.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <!-- Tu librería de componentes modular -->
     <script src="https://unonibes4a.github.io/pintaresta/aggio.js"></script>
 
     <style>
@@ -157,8 +155,8 @@
 
     <header id="app-tab-header">
         <div class="app-brand">
-            <span class="material-symbols-outlined">view_in_ar</span>
-            <span>MathStudio 3D Mesh</span>
+            <span class="material-symbols-outlined">biotech</span>
+            <span>OmniMath & Physics Studio Pro</span>
         </div>
         <div id="tab-buttons-mount" style="display: flex; gap: 8px;"></div>
     </header>
@@ -166,25 +164,18 @@
     <main id="app-workspace"></main>
 
 <script>
-// =============================================================================
-// FUNCIÓN AUXILIAR DE PLOTEO SEGURO (CON AUTO-RECUPERACIÓN DE WEBGL)
-// =============================================================================
 function safePlot(div, data, layout) {
     if (!div || div.clientWidth < 10 || div.clientHeight < 10) return;
     try {
         Plotly.react(div, data, layout, { responsive: true, displayModeBar: false });
     } catch (err) {
-        console.warn("Recuperando contexto WebGL...", err);
         try {
             Plotly.purge(div);
             Plotly.newPlot(div, data, layout, { responsive: true, displayModeBar: false });
-        } catch(e) {
-            console.error("Fallo crítico en WebGL:", e);
-        }
+        } catch(e) {}
     }
 }
 
-// Normaliza multiplicaciones implícitas como 2x -> 2*x, x y -> x*y
 function sanitizeMathExpression(expr) {
     if (!expr || typeof expr !== 'string') return "0";
     let s = expr.trim();
@@ -193,9 +184,6 @@ function sanitizeMathExpression(expr) {
     return s;
 }
 
-// =============================================================================
-// 1. CLASE MAESTRA DE INTERFAZ GRÁFICA (MathUI)
-// =============================================================================
 class MathUI {
     constructor() {
         this.headerMount = document.getElementById("tab-buttons-mount");
@@ -291,9 +279,600 @@ class MathUI {
     }
 }
 
-// =============================================================================
-// 2. MÓDULO SUPERFICIES 3D CON PROTECCIÓN TOTAL AL MULTIPLICAR
-// =============================================================================
+class TrigonometriaModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({
+            title: "Trigonometría & Triángulo Rectángulo",
+            isOpen: true,
+            width: "100%"
+        });
+
+        const row = document.createElement("div");
+        row.className = "math-row";
+        this.inCatA = new GiovanniInputNumber({ label: "Cateto a (Base)", value: 4, step: 0.5 });
+        this.inCatB = new GiovanniInputNumber({ label: "Cateto b (Altura)", value: 3, step: 0.5 });
+        row.appendChild(this.inCatA.element);
+        row.appendChild(this.inCatB.element);
+        this.panel.appendChild(row);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        this.inCatA.options.onChange = () => this.render();
+        this.inCatB.options.onChange = () => this.render();
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+
+        const a = Math.max(0.001, this.inCatA.getValue());
+        const b = Math.max(0.001, this.inCatB.getValue());
+        const c = Math.hypot(a, b);
+
+        const alphaRad = Math.atan2(b, a);
+        const betaRad = Math.atan2(a, b);
+        const alphaDeg = (alphaRad * 180) / Math.PI;
+        const betaDeg = (betaRad * 180) / Math.PI;
+
+        const sinA = b / c;
+        const cosA = a / c;
+        const tanA = b / a;
+        const secA = c / a;
+        const cscA = c / b;
+        const cotA = a / b;
+
+        const area = (a * b) / 2;
+        const perimeter = a + b + c;
+        const hC = (a * b) / c;
+
+        this.resCard.innerHTML = `
+            • <b>Teorema de Pitágoras:</b> c = √(a² + b²) = √(${Math.pow(a,2).toFixed(2)} + ${Math.pow(b,2).toFixed(2)})<br>
+            • <b>Hipotenusa (c):</b> ${c.toFixed(4)} u<br>
+            • <b>Ángulo α:</b> ${alphaDeg.toFixed(3)}° (${alphaRad.toFixed(4)} rad)<br>
+            • <b>Ángulo β:</b> ${betaDeg.toFixed(3)}° (${betaRad.toFixed(4)} rad)<br>
+            • <b>Ángulo γ:</b> 90.000° (Ángulo Recto)<br>
+            • <b>Suma de Ángulos:</b> ${(alphaDeg + betaDeg + 90).toFixed(2)}°<br><br>
+            • <b>Razones de α:</b> sen(α)=${sinA.toFixed(4)} | cos(α)=${cosA.toFixed(4)} | tan(α)=${tanA.toFixed(4)}<br>
+            • <b>Recíprocas:</b> csc(α)=${cscA.toFixed(4)} | sec(α)=${secA.toFixed(4)} | cot(α)=${cotA.toFixed(4)}<br><br>
+            • <b>Área Geométrica:</b> ${area.toFixed(4)} u² | <b>Perímetro:</b> ${perimeter.toFixed(4)} u<br>
+            • <b>Altura Relativa (h_c):</b> ${hC.toFixed(4)} u
+        `;
+
+        const sq = Math.min(a, b) * 0.12;
+        const arcR = Math.min(a, b) * 0.28;
+        const arcX = [];
+        const arcY = [];
+        const steps = 30;
+        for (let i = 0; i <= steps; i++) {
+            const th = (alphaRad / steps) * i;
+            arcX.push(arcR * Math.cos(th));
+            arcY.push(arcR * Math.sin(th));
+        }
+
+        const traces = [
+            {
+                x: [0, a, a, 0],
+                y: [0, 0, b, 0],
+                fill: 'toself',
+                fillcolor: 'rgba(92, 156, 230, 0.18)',
+                line: { color: '#5c9ce6', width: 3 },
+                mode: 'lines+markers+text',
+                text: ['A (0,0)', 'C (a,0)', 'B (a,b)', ''],
+                textposition: ['bottom left', 'bottom right', 'top right', 'center'],
+                name: 'Triángulo'
+            },
+            {
+                x: [a - sq, a - sq, a],
+                y: [0, sq, sq],
+                mode: 'lines',
+                line: { color: '#ef4444', width: 2 },
+                name: '90°'
+            },
+            {
+                x: [0, ...arcX, 0],
+                y: [0, ...arcY, 0],
+                mode: 'lines',
+                fill: 'toself',
+                fillcolor: 'rgba(245, 158, 11, 0.25)',
+                line: { color: '#f59e0b', width: 1.5 },
+                name: `α (${alphaDeg.toFixed(1)}°)`
+            }
+        ];
+
+        const layout = {
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
+            xaxis: {
+                title: 'Cateto a (Base)',
+                color: '#888',
+                gridcolor: '#303030',
+                range: [-a * 0.15, a * 1.25]
+            },
+            yaxis: {
+                title: 'Cateto b (Altura)',
+                color: '#888',
+                gridcolor: '#303030',
+                range: [-b * 0.15, b * 1.25],
+                scaleanchor: 'x',
+                scaleratio: 1
+            },
+            annotations: [
+                { x: a / 2, y: -b * 0.08, text: `a = ${a.toFixed(2)}`, showarrow: false, font: { color: '#5c9ce6' } },
+                { x: a + a * 0.08, y: b / 2, text: `b = ${b.toFixed(2)}`, showarrow: false, font: { color: '#10b981' } },
+                { x: a / 2 - a * 0.08, y: b / 2 + b * 0.08, text: `c = ${c.toFixed(2)}`, showarrow: false, font: { color: '#ef4444' } }
+            ],
+            margin: { l: 45, r: 20, b: 40, t: 20 },
+            legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
+class AritmeticaAlgebraModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({
+            title: "Aritmética, Álgebra & Números Complejos",
+            isOpen: true,
+            width: "100%"
+        });
+
+        const lbl1 = document.createElement("div"); lbl1.innerHTML = `<span class="math-tag">Complejo z₁ = a + bi</span>`; this.panel.appendChild(lbl1);
+        const rowZ1 = document.createElement("div"); rowZ1.className = "math-row";
+        this.re1 = new GiovanniInputNumber({ label: "Re(z₁)", value: 3, step: 0.5 });
+        this.im1 = new GiovanniInputNumber({ label: "Im(z₁)", value: 4, step: 0.5 });
+        rowZ1.appendChild(this.re1.element); rowZ1.appendChild(this.im1.element);
+        this.panel.appendChild(rowZ1);
+
+        const lbl2 = document.createElement("div"); lbl2.innerHTML = `<span class="math-tag">Complejo z₂ = c + di</span>`; this.panel.appendChild(lbl2);
+        const rowZ2 = document.createElement("div"); rowZ2.className = "math-row";
+        this.re2 = new GiovanniInputNumber({ label: "Re(z₂)", value: 1, step: 0.5 });
+        this.im2 = new GiovanniInputNumber({ label: "Im(z₂)", value: -2, step: 0.5 });
+        rowZ2.appendChild(this.re2.element); rowZ2.appendChild(this.im2.element);
+        this.panel.appendChild(rowZ2);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        [this.re1, this.im1, this.re2, this.im2].forEach(c => c.options.onChange = () => this.render());
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+
+        const a = this.re1.getValue();
+        const b = this.im1.getValue();
+        const c = this.re2.getValue();
+        const d = this.im2.getValue();
+
+        const sumR = a + c;
+        const sumI = b + d;
+
+        const subR = a - c;
+        const subI = b - d;
+
+        const mulR = a * c - b * d;
+        const mulI = a * d + b * c;
+
+        const den = c * c + d * d;
+        const divR = den !== 0 ? (a * c + b * d) / den : 0;
+        const divI = den !== 0 ? (b * c - a * d) / den : 0;
+
+        const mod1 = Math.hypot(a, b);
+        const arg1 = (Math.atan2(b, a) * 180) / Math.PI;
+
+        const mod2 = Math.hypot(c, d);
+        const arg2 = (Math.atan2(d, c) * 180) / Math.PI;
+
+        this.resCard.innerHTML = `
+            • <b>z₁:</b> ${a} + ${b}i | |z₁| = ${mod1.toFixed(3)} | θ₁ = ${arg1.toFixed(2)}°<br>
+            • <b>z₂:</b> ${c} + ${d}i | |z₂| = ${mod2.toFixed(3)} | θ₂ = ${arg2.toFixed(2)}°<br>
+            • <b>Suma (z₁ + z₂):</b> ${sumR.toFixed(3)} + ${sumI.toFixed(3)}i<br>
+            • <b>Resta (z₁ - z₂):</b> ${subR.toFixed(3)} + ${subI.toFixed(3)}i<br>
+            • <b>Producto (z₁ · z₂):</b> ${mulR.toFixed(3)} + ${mulI.toFixed(3)}i<br>
+            • <b>División (z₁ / z₂):</b> ${den !== 0 ? `${divR.toFixed(3)} + ${divI.toFixed(3)}i` : "Indefinida"}<br>
+            • <b>Conjugados:</b> z̄₁ = ${a} - ${b}i | z̄₂ = ${c} - ${d}i
+        `;
+
+        const traces = [
+            {
+                x: [0, a], y: [0, b],
+                mode: 'lines+markers',
+                name: 'z₁',
+                line: { color: '#3b82f6', width: 3 },
+                marker: { size: [0, 8], color: '#3b82f6' }
+            },
+            {
+                x: [0, c], y: [0, d],
+                mode: 'lines+markers',
+                name: 'z₂',
+                line: { color: '#10b981', width: 3 },
+                marker: { size: [0, 8], color: '#10b981' }
+            },
+            {
+                x: [0, sumR], y: [0, sumI],
+                mode: 'lines+markers',
+                name: 'z₁ + z₂',
+                line: { color: '#f59e0b', width: 2.5, dash: 'dash' },
+                marker: { size: [0, 8], color: '#f59e0b' }
+            },
+            {
+                x: [0, mulR], y: [0, mulI],
+                mode: 'lines+markers',
+                name: 'z₁ · z₂',
+                line: { color: '#ec4899', width: 2, dash: 'dot' },
+                marker: { size: [0, 8], color: '#ec4899' }
+            }
+        ];
+
+        const maxLim = Math.max(5, Math.abs(a), Math.abs(b), Math.abs(c), Math.abs(d), Math.abs(sumR), Math.abs(sumI)) * 1.3;
+
+        const layout = {
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
+            xaxis: {
+                title: 'Eje Real Re(z)',
+                color: '#888',
+                gridcolor: '#303030',
+                zerolinecolor: '#444',
+                range: [-maxLim, maxLim]
+            },
+            yaxis: {
+                title: 'Eje Imaginario Im(z)',
+                color: '#888',
+                gridcolor: '#303030',
+                zerolinecolor: '#444',
+                range: [-maxLim, maxLim],
+                scaleanchor: 'x',
+                scaleratio: 1
+            },
+            margin: { l: 45, r: 20, b: 40, t: 20 },
+            legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
+class MatricesModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({
+            title: "Álgebra Lineal & Transformaciones 2D",
+            isOpen: true,
+            width: "100%"
+        });
+
+        const row1 = document.createElement("div"); row1.className = "math-row";
+        this.m11 = new GiovanniInputNumber({ label: "A₁₁", value: 2, step: 0.2 });
+        this.m12 = new GiovanniInputNumber({ label: "A₁₂", value: 1, step: 0.2 });
+        row1.appendChild(this.m11.element); row1.appendChild(this.m12.element);
+        this.panel.appendChild(row1);
+
+        const row2 = document.createElement("div"); row2.className = "math-row";
+        this.m21 = new GiovanniInputNumber({ label: "A₂₁", value: 0.5, step: 0.2 });
+        this.m22 = new GiovanniInputNumber({ label: "A₂₂", value: 1.5, step: 0.2 });
+        row2.appendChild(this.m21.element); row2.appendChild(this.m22.element);
+        this.panel.appendChild(row2);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        [this.m11, this.m12, this.m21, this.m22].forEach(c => c.options.onChange = () => this.render());
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+
+        const a = this.m11.getValue();
+        const b = this.m12.getValue();
+        const c = this.m21.getValue();
+        const d = this.m22.getValue();
+
+        const det = a * d - b * c;
+        const trace = a + d;
+        const disc = trace * trace - 4 * det;
+
+        let eigenText = "";
+        if (disc >= 0) {
+            const l1 = (trace + Math.sqrt(disc)) / 2;
+            const l2 = (trace - Math.sqrt(disc)) / 2;
+            eigenText = `λ₁ = ${l1.toFixed(4)}, λ₂ = ${l2.toFixed(4)}`;
+        } else {
+            const re = (trace / 2).toFixed(4);
+            const im = (Math.sqrt(-disc) / 2).toFixed(4);
+            eigenText = `λ = ${re} ± ${im}i`;
+        }
+
+        let invText = "Singular (No invertible)";
+        if (Math.abs(det) > 1e-9) {
+            invText = `[[${(d/det).toFixed(2)}, ${(-b/det).toFixed(2)}], [${(-c/det).toFixed(2)}, ${(a/det).toFixed(2)}]]`;
+        }
+
+        this.resCard.innerHTML = `
+            • <b>Determinante det(A):</b> ${det.toFixed(4)}<br>
+            • <b>Traza tr(A):</b> ${trace.toFixed(4)}<br>
+            • <b>Autovalores:</b> ${eigenText}<br>
+            • <b>Matriz Inversa A⁻¹:</b> ${invText}<br>
+            • <b>Escalado de Área:</b> |det(A)| = ${Math.abs(det).toFixed(4)}
+        `;
+
+        const sqX = [0, 1, 1, 0, 0];
+        const sqY = [0, 0, 1, 1, 0];
+        const trX = [];
+        const trY = [];
+
+        for (let i = 0; i < sqX.length; i++) {
+            trX.push(a * sqX[i] + b * sqY[i]);
+            trY.push(c * sqX[i] + d * sqY[i]);
+        }
+
+        const traces = [
+            {
+                x: sqX, y: sqY,
+                mode: 'lines',
+                line: { color: '#888', width: 2, dash: 'dot' },
+                fill: 'toself',
+                fillcolor: 'rgba(150, 150, 150, 0.1)',
+                name: 'Original'
+            },
+            {
+                x: trX, y: trY,
+                mode: 'lines+markers',
+                line: { color: '#3878e0', width: 2.5 },
+                fill: 'toself',
+                fillcolor: 'rgba(168, 85, 247, 0.25)',
+                name: 'T(Espacio)'
+            },
+            {
+                x: [0, a], y: [0, c],
+                mode: 'lines+markers',
+                line: { color: '#3b82f6', width: 3.5 },
+                name: 'T(î)'
+            },
+            {
+                x: [0, b], y: [0, d],
+                mode: 'lines+markers',
+                line: { color: '#10b981', width: 3.5 },
+                name: 'T(ĵ)'
+            }
+        ];
+
+        const layout = {
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
+            xaxis: { title: 'X', color: '#888', gridcolor: '#303030', zerolinecolor: '#444' },
+            yaxis: { title: 'Y', color: '#888', gridcolor: '#303030', zerolinecolor: '#444', scaleanchor: 'x', scaleratio: 1 },
+            margin: { l: 45, r: 20, b: 40, t: 20 },
+            legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
+class NewtonPhysicsModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({
+            title: "Física Clásica - Balística & Energía Mecánica",
+            isOpen: true,
+            width: "100%"
+        });
+
+        const row1 = document.createElement("div"); row1.className = "math-row";
+        this.inVel = new GiovanniInputNumber({ label: "Velocidad v₀ (m/s)", value: 25, step: 1 });
+        this.inAng = new GiovanniInputNumber({ label: "Ángulo θ (°)", value: 45, step: 1 });
+        row1.appendChild(this.inVel.element); row1.appendChild(this.inAng.element);
+        this.panel.appendChild(row1);
+
+        const row2 = document.createElement("div"); row2.className = "math-row";
+        this.inH = new GiovanniInputNumber({ label: "Altura y₀ (m)", value: 0, step: 1 });
+        this.inM = new GiovanniInputNumber({ label: "Masa m (kg)", value: 2, step: 0.5 });
+        this.inG = new GiovanniInputNumber({ label: "Gravedad g (m/s²)", value: 9.806, step: 0.1 });
+        row2.appendChild(this.inH.element); row2.appendChild(this.inM.element); row2.appendChild(this.inG.element);
+        this.panel.appendChild(row2);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        [this.inVel, this.inAng, this.inH, this.inM, this.inG].forEach(c => c.options.onChange = () => this.render());
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+
+        const v0 = this.inVel.getValue();
+        const deg = this.inAng.getValue();
+        const y0 = this.inH.getValue();
+        const m = this.inM.getValue();
+        const g = this.inG.getValue();
+
+        const rad = (deg * Math.PI) / 180;
+        const v0x = v0 * Math.cos(rad);
+        const v0y = v0 * Math.sin(rad);
+
+        const tVertex = v0y / g;
+        const hMax = y0 + (v0y * v0y) / (2 * g);
+
+        const disc = v0y * v0y + 2 * g * y0;
+        const tFlight = (v0y + Math.sqrt(disc)) / g;
+        const maxRange = v0x * tFlight;
+
+        const ek0 = 0.5 * m * v0 * v0;
+        const ep0 = m * g * y0;
+        const eMech = ek0 + ep0;
+
+        const vFinalY = v0y - g * tFlight;
+        const vFinal = Math.hypot(v0x, vFinalY);
+
+        this.resCard.innerHTML = `
+            • <b>Componentes:</b> v₀x = ${v0x.toFixed(3)} m/s | v₀y = ${v0y.toFixed(3)} m/s<br>
+            • <b>Tiempo de Vuelo Total:</b> ${tFlight.toFixed(3)} s (Vértice en ${tVertex.toFixed(3)} s)<br>
+            • <b>Altura Máxima (H_max):</b> ${hMax.toFixed(3)} m<br>
+            • <b>Alcance Máximo (X_max):</b> ${maxRange.toFixed(3)} m<br>
+            • <b>Velocidad de Impacto:</b> ${vFinal.toFixed(3)} m/s<br><br>
+            • <b>Energía Cinética Inicial (Ek):</b> ${ek0.toFixed(2)} J<br>
+            • <b>Energía Potencial Inicial (Ep):</b> ${ep0.toFixed(2)} J<br>
+            • <b>Energía Mecánica Total (E_mec):</b> ${eMech.toFixed(2)} J
+        `;
+
+        const trajX = [];
+        const trajY = [];
+        const steps = 150;
+        const dt = tFlight / steps;
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i * dt;
+            const x = v0x * t;
+            const y = y0 + v0y * t - 0.5 * g * t * t;
+            trajX.push(x);
+            trajY.push(Math.max(0, y));
+        }
+
+        const traces = [
+            {
+                x: trajX, y: trajY,
+                mode: 'lines',
+                line: { color: '#3b82f6', width: 3 },
+                name: 'Trayectoria y(x)'
+            },
+            {
+                x: [trajX[0]], y: [trajY[0]],
+                mode: 'markers',
+                marker: { size: 10, color: '#10b981' },
+                name: 'Disparo'
+            },
+            {
+                x: [trajX[trajX.length - 1]], y: [0],
+                mode: 'markers',
+                marker: { size: 10, color: '#ef4444' },
+                name: 'Impacto'
+            }
+        ];
+
+        const layout = {
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
+            xaxis: { title: 'Distancia Horizontal X (m)', color: '#888', gridcolor: '#303030' },
+            yaxis: { title: 'Altura Vertical Y (m)', color: '#888', gridcolor: '#303030' },
+            margin: { l: 45, r: 20, b: 40, t: 20 },
+            legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
+class EinsteinPhysicsModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({
+            title: "Física Relativista - Transformaciones de Lorentz",
+            isOpen: true,
+            width: "100%"
+        });
+
+        this.sliderBeta = new GiovanniSlider({ label: "Velocidad β = v/c", min: 0.0, max: 0.999, step: 0.001, value: 0.6 });
+        this.panel.appendChild(this.sliderBeta.element);
+
+        const row = document.createElement("div"); row.className = "math-row";
+        this.inMass0 = new GiovanniInputNumber({ label: "Masa m₀ (kg)", value: 1, step: 0.1 });
+        this.inTime0 = new GiovanniInputNumber({ label: "Tiempo Δt₀ (s)", value: 10, step: 1 });
+        this.inLen0 = new GiovanniInputNumber({ label: "Longitud L₀ (m)", value: 100, step: 5 });
+        row.appendChild(this.inMass0.element); row.appendChild(this.inTime0.element); row.appendChild(this.inLen0.element);
+        this.panel.appendChild(row);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        this.sliderBeta.options.onInput = () => this.render();
+        [this.inMass0, this.inTime0, this.inLen0].forEach(c => c.options.onChange = () => this.render());
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+
+        const beta = Math.min(0.9999, Math.max(0, this.sliderBeta.getValue()));
+        const m0 = this.inMass0.getValue();
+        const t0 = this.inTime0.getValue();
+        const l0 = this.inLen0.getValue();
+        const c = 299792458;
+
+        const gamma = 1 / Math.sqrt(1 - beta * beta);
+        const tDilated = gamma * t0;
+        const lContracted = l0 / gamma;
+        const relMass = gamma * m0;
+
+        const eRest = m0 * c * c;
+        const eTotal = gamma * m0 * c * c;
+        const eKinetic = (gamma - 1) * m0 * c * c;
+        const momentum = gamma * m0 * (beta * c);
+
+        this.resCard.innerHTML = `
+            • <b>Factor de Lorentz (γ):</b> ${gamma.toFixed(5)}<br>
+            • <b>Velocidad v:</b> ${(beta * 100).toFixed(2)}% c (${(beta * c).toExponential(3)} m/s)<br>
+            • <b>Dilatación Temporal:</b> Δt = γ·Δt₀ = <b>${tDilated.toFixed(4)} s</b> (Δt₀ = ${t0} s)<br>
+            • <b>Contracción de Longitud:</b> L = L₀/γ = <b>${lContracted.toFixed(4)} m</b> (L₀ = ${l0} m)<br>
+            • <b>Masa Relativista:</b> m = γ·m₀ = <b>${relMass.toFixed(4)} kg</b><br>
+            • <b>Momento Relativista (p):</b> ${momentum.toExponential(4)} kg·m/s<br><br>
+            • <b>Energía en Reposo (E₀):</b> ${eRest.toExponential(4)} J<br>
+            • <b>Energía Cinética (Ek):</b> ${eKinetic.toExponential(4)} J<br>
+            • <b>Energía Total (E = γm₀c²):</b> ${eTotal.toExponential(4)} J
+        `;
+
+        const betaArr = [];
+        const gammaArr = [];
+        for (let b = 0; b <= 0.985; b += 0.005) {
+            betaArr.push(b);
+            gammaArr.push(1 / Math.sqrt(1 - b * b));
+        }
+
+        const traces = [
+            {
+                x: betaArr, y: gammaArr,
+                mode: 'lines',
+                line: { color: '#3878e0', width: 2.5 },
+                name: 'Factor γ(β)'
+            },
+            {
+                x: [beta], y: [gamma],
+                mode: 'markers',
+                marker: { size: 10, color: '#f59e0b' },
+                name: `Estado Actual (β=${beta.toFixed(3)}, γ=${gamma.toFixed(2)})`
+            }
+        ];
+
+        const layout = {
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
+            xaxis: { title: 'Velocidad Relativa β = v/c', color: '#888', gridcolor: '#303030' },
+            yaxis: { title: 'Factor Relativista Gamma (γ)', color: '#888', gridcolor: '#303030', range: [1, 10] },
+            margin: { l: 45, r: 20, b: 40, t: 20 },
+            legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
 class Superficies3DModule {
     init(controlsContainer, plotElement) {
         this.plotEl = plotElement;
@@ -393,7 +972,6 @@ class Superficies3DModule {
 
         controlsContainer.appendChild(this.panel.element);
 
-        // Control reactivo con Debounce para evitar renderizar en fórmulas incompletas (ej: "x*")
         const triggerUpdate = () => {
             clearTimeout(this.debounceTimer);
             this.debounceTimer = setTimeout(() => {
@@ -418,7 +996,6 @@ class Superficies3DModule {
         const steps = this.sliderRes.getValue();
         const h = (2 * L) / steps;
 
-        // 1. PRE-VALIDACIÓN: Compilar antes de calcular para no romper WebGL si está incompleto
         let compiled = null;
         try {
             compiled = math.compile(cleanEq);
@@ -426,7 +1003,7 @@ class Superficies3DModule {
             if (typeof test !== 'number' || isNaN(test)) throw new Error();
         } catch (e) {
             this.resCard.innerHTML = `<span style="color:#f59e0b">Escribiendo fórmula... (Ej: x*y, sin(x)*cos(y), x^2 - y^2)</span>`;
-            return; // Abortar antes de llamar a Plotly
+            return;
         }
 
         const xArr = [], yArr = [], zArr = [];
@@ -437,7 +1014,6 @@ class Superficies3DModule {
 
         let minZ = Infinity, maxZ = -Infinity;
 
-        // 2. GENERAR MATRIZ Z COMPLETA
         for (let i = 0; i <= steps; i++) {
             const row = [];
             const y = yArr[i];
@@ -459,7 +1035,6 @@ class Superficies3DModule {
             zArr.push(row);
         }
 
-        // 3. PROTECCIÓN CRÍTICA DE RANGO Z (Evita división por cero y error uniformMatrix4fv)
         if (minZ === Infinity || maxZ === -Infinity) {
             minZ = -1.0; maxZ = 1.0;
         } else if (Math.abs(maxZ - minZ) < 1e-4) {
@@ -496,7 +1071,7 @@ class Superficies3DModule {
                     title: 'Z',
                     color: '#888',
                     gridcolor: '#444',
-                    range: [minZ, maxZ] // Fijar rango evita el fallo de uniformMatrix4fv
+                    range: [minZ, maxZ]
                 }
             },
             margin: { l: 0, r: 0, b: 0, t: 10 }
@@ -545,12 +1120,12 @@ class Superficies3DModule {
 
     getBlenderPythonCode(eq, L, steps) {
         let pyEq = eq.replace(/\^/g, '**').replace(/sin\(/g, 'math.sin(').replace(/cos\(/g, 'math.cos(').replace(/sqrt\(/g, 'math.sqrt(');
-        return `# Script Procedural para Blender 3.x / 4.x\nimport bpy, math\n\ndef create_surface():\n    L = ${L}\n    steps = ${steps}\n    h = (2.0 * L) / steps\n    verts, faces = [], []\n    for i in range(steps + 1):\n        y = -L + i * h\n        for j in range(steps + 1):\n            x = -L + j * h\n            try: z = ${pyEq}\n            except: z = 0.0\n            verts.append((x, y, z))\n    for i in range(steps):\n        for j in range(steps):\n            v0 = i * (steps + 1) + j\n            faces.append((v0, v0 + 1, (i + 1) * (steps + 1) + j + 1, (i + 1) * (steps + 1) + j))\n    mesh = bpy.data.meshes.new("MathSurface")\n    mesh.from_pydata(verts, [], faces)\n    mesh.update()\n    obj = bpy.data.objects.new("MathSurfaceObj", mesh)\n    bpy.context.collection.objects.link(obj)\n\ncreate_surface()\n`;
+        return `import bpy, math\n\ndef create_surface():\n    L = ${L}\n    steps = ${steps}\n    h = (2.0 * L) / steps\n    verts, faces = [], []\n    for i in range(steps + 1):\n        y = -L + i * h\n        for j in range(steps + 1):\n            x = -L + j * h\n            try: z = ${pyEq}\n            except: z = 0.0\n            verts.append((x, y, z))\n    for i in range(steps):\n        for j in range(steps):\n            v0 = i * (steps + 1) + j\n            faces.append((v0, v0 + 1, (i + 1) * (steps + 1) + j + 1, (i + 1) * (steps + 1) + j))\n    mesh = bpy.data.meshes.new("MathSurface")\n    mesh.from_pydata(verts, [], faces)\n    mesh.update()\n    obj = bpy.data.objects.new("MathSurfaceObj", mesh)\n    bpy.context.collection.objects.link(obj)\n\ncreate_surface()\n`;
     }
 
     getGodotGDScriptCode(eq, L, steps) {
         let gdEq = eq.replace(/\^/g, '**');
-        return `@tool\nextends MeshInstance3D\n# Godot 4 SurfaceTool Script\n@export var L: float = ${L}\n@export var steps: int = ${steps}\n\nfunc _ready():\n    var st = SurfaceTool.new()\n    st.begin(Mesh.PRIMITIVE_TRIANGLES)\n    var h = (2.0 * L) / float(steps)\n    for i in range(steps):\n        var y0 = -L + float(i)*h\n        var y1 = y0 + h\n        for j in range(steps):\n            var x0 = -L + float(j)*h\n            var x1 = x0 + h\n            var p00 = Vector3(x0, ${gdEq.replace(/x/g, "x0").replace(/y/g, "y0")}, y0)\n            var p10 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y0")}, y0)\n            var p11 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y1")}, y1)\n            st.add_vertex(p00); st.add_vertex(p10); st.add_vertex(p11)\n    st.generate_normals()\n    mesh = st.commit()\n`;
+        return `@tool\nextends MeshInstance3D\n\n@export var L: float = ${L}\n@export var steps: int = ${steps}\n\nfunc _ready():\n    var st = SurfaceTool.new()\n    st.begin(Mesh.PRIMITIVE_TRIANGLES)\n    var h = (2.0 * L) / float(steps)\n    for i in range(steps):\n        var y0 = -L + float(i)*h\n        var y1 = y0 + h\n        for j in range(steps):\n            var x0 = -L + float(j)*h\n            var x1 = x0 + h\n            var p00 = Vector3(x0, ${gdEq.replace(/x/g, "x0").replace(/y/g, "y0")}, y0)\n            var p10 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y0")}, y0)\n            var p11 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y1")}, y1)\n            st.add_vertex(p00); st.add_vertex(p10); st.add_vertex(p11)\n    st.generate_normals()\n    mesh = st.commit()\n`;
     }
 
     getThreeJsCode(eq, L, steps) {
@@ -564,11 +1139,11 @@ class Superficies3DModule {
     }
 
     getUnrealCppCode(eq, L, steps) {
-        return `// Unreal Engine 5 ProceduralMesh\n#include "ProceduralMeshComponent.h"\nvoid GenerateMesh(UProceduralMeshComponent* P) {\n    TArray<FVector> V; TArray<int32> T;\n    // Generar vértices y caras con: z = ${eq}\n}\n`;
+        return `#include "ProceduralMeshComponent.h"\nvoid GenerateMesh(UProceduralMeshComponent* P) {\n    TArray<FVector> V; TArray<int32> T;\n    // z = ${eq}\n}\n`;
     }
 
     getStrideCSharpCode(eq, L, steps) {
-        return `// Stride Engine Procedural VertexBuffer\nusing Stride.Graphics;\npublic static class MeshGen { /* Buffer procedural para z = ${eq} */ }\n`;
+        return `using Stride.Graphics;\npublic static class MeshGen { /* z = ${eq} */ }\n`;
     }
 
     copyToClipboard() {
@@ -596,9 +1171,6 @@ class Superficies3DModule {
     }
 }
 
-// =============================================================================
-// 3. MÓDULOS DE VECTORES, DERIVADAS, INTEGRALES, REGRESIÓN Y BÉZIER
-// =============================================================================
 class Vectores3DModule {
     init(controlsContainer, plotElement) {
         this.plotEl = plotElement;
@@ -775,42 +1347,81 @@ class IntegralesModule {
 class RegresionPolinomicaModule {
     init(c, p) {
         this.plotEl = p;
-        this.panel = new GiovanniContainerSimple({ title: "Regresión Polinómica", isOpen: true, width: "100%" });
+        this.panel = new GiovanniContainerSimple({ title: "Regresión Polinómica & Mínimos Cuadrados", isOpen: true, width: "100%" });
         this.inPts = new GiovanniInputText({ label: "Puntos (x,y)", value: "(1, 2.1), (2, 4.2), (3, 8.8), (4, 16.5), (5, 26.0)" });
-        this.degInput = new GiovanniInputNumber({ label: "Grado Polinomio", min: 1, max: 5, step: 1, value: 2 });
+        this.degInput = new GiovanniInputNumber({ label: "Grado Polinomio (n)", min: 1, max: 5, step: 1, value: 2 });
+        this.inEvalX = new GiovanniInputNumber({ label: "Predecir y en x =", value: 6, step: 0.5 });
         this.resCard = document.createElement("div"); this.resCard.className = "math-result-card";
-        this.panel.appendChild(this.inPts.element); this.panel.appendChild(this.degInput.element); this.panel.appendChild(this.resCard);
+        this.panel.appendChild(this.inPts.element);
+        this.panel.appendChild(this.degInput.element);
+        this.panel.appendChild(this.inEvalX.element);
+        this.panel.appendChild(this.resCard);
         c.appendChild(this.panel.element);
         this.inPts.options.onChange = () => this.render();
         this.degInput.options.onChange = () => this.render();
+        this.inEvalX.options.onChange = () => this.render();
     }
     render() {
         if (!this.plotEl || this.plotEl.clientWidth < 10) return;
-        const text = this.inPts.getValue(), degree = this.degInput.getValue();
+        const text = this.inPts.getValue(), degree = Math.max(1, Math.min(5, Math.floor(this.degInput.getValue())));
+        const evalX = this.inEvalX.getValue();
         const pts = []; const regex = /\(([^,]+),\s*([^)]+)\)/g; let m;
         while ((m = regex.exec(text)) !== null) {
             const x = parseFloat(m[1]), y = parseFloat(m[2]);
             if (!isNaN(x) && !isNaN(y)) pts.push({ x, y });
         }
-        if (pts.length < degree + 1) return;
+        if (pts.length < degree + 1) {
+            this.resCard.innerHTML = `<span style="color:#ef4444">Se requieren al menos ${degree + 1} puntos para grado ${degree}.</span>`;
+            return;
+        }
         const X = [], Y = [];
         for (let i = 0; i <= degree; i++) {
             X[i] = [];
             for (let j = 0; j <= degree; j++) X[i][j] = pts.reduce((s, p) => s + Math.pow(p.x, i + j), 0);
             Y[i] = pts.reduce((s, p) => s + p.y * Math.pow(p.x, i), 0);
         }
-        let coeffs = math.lusolve(X, Y).map(c => c[0]);
-        this.resCard.innerHTML = `• <b>Polinomio Ajustado Exitosamente</b> (Grado ${degree})`;
-        const xVals = pts.map(p => p.x), minX = Math.min(...xVals) - 1, maxX = Math.max(...xVals) + 1;
+        let coeffs = [];
+        try {
+            coeffs = math.lusolve(X, Y).map(c => c[0]);
+        } catch(e) {
+            this.resCard.innerHTML = `<span style="color:#ef4444">Fallo al resolver matriz de mínimos cuadrados.</span>`;
+            return;
+        }
+        let eqStr = "y = ";
+        for (let i = degree; i >= 0; i--) {
+            const val = coeffs[i];
+            const sign = val >= 0 ? (i === degree ? "" : " + ") : " - ";
+            const absV = Math.abs(val).toFixed(4);
+            if (i > 1) eqStr += `${sign}${absV}x^${i}`;
+            else if (i === 1) eqStr += `${sign}${absV}x`;
+            else eqStr += `${sign}${absV}`;
+        }
+        const predY = coeffs.reduce((acc, c, idx) => acc + c * Math.pow(evalX, idx), 0);
+        const yAvg = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+        let ssTot = 0, ssRes = 0;
+        pts.forEach(p => {
+            const yP = coeffs.reduce((acc, c, idx) => acc + c * Math.pow(p.x, idx), 0);
+            ssTot += (p.y - yAvg)**2;
+            ssRes += (p.y - yP)**2;
+        });
+        const r2 = ssTot > 0 ? (1 - (ssRes / ssTot)) : 1;
+        this.resCard.innerHTML = `
+            • <b>Ajuste Polinómico:</b> ${eqStr}<br>
+            • <b>Bondad de Ajuste R²:</b> ${r2.toFixed(5)} (${(r2*100).toFixed(2)}%)<br>
+            • <b>Suma Residual SS_res:</b> ${ssRes.toFixed(4)}<br>
+            • <b>Predicción f(${evalX}):</b> y = <b>${predY.toFixed(4)}</b>
+        `;
+        const xVals = pts.map(p => p.x), minX = Math.min(...xVals, evalX) - 1.5, maxX = Math.max(...xVals, evalX) + 1.5;
         const curveX = [], curveY = [];
-        for (let i = 0; i <= 150; i++) {
-            const cx = minX + (i * (maxX - minX) / 150);
+        for (let i = 0; i <= 180; i++) {
+            const cx = minX + (i * (maxX - minX) / 180);
             curveX.push(cx);
             curveY.push(coeffs.reduce((acc, c, idx) => acc + c * Math.pow(cx, idx), 0));
         }
         const traces = [
-            { x: pts.map(p => p.x), y: pts.map(p => p.y), mode: 'markers', name: 'Datos', marker: { size: 8, color: '#ef4444' } },
-            { x: curveX, y: curveY, mode: 'lines', name: 'Polinomio', line: { color: '#3b82f6', width: 2 } }
+            { x: pts.map(p => p.x), y: pts.map(p => p.y), mode: 'markers', name: 'Datos Experimentales', marker: { size: 8, color: '#ef4444' } },
+            { x: curveX, y: curveY, mode: 'lines', name: 'Curva de Regresión', line: { color: '#3b82f6', width: 2.5 } },
+            { x: [evalX], y: [predY], mode: 'markers', name: `P(${evalX})`, marker: { size: 10, color: '#10b981', symbol: 'diamond' } }
         ];
         safePlot(this.plotEl, traces, { paper_bgcolor: '#202020', plot_bgcolor: '#202020', xaxis: { color: '#888', gridcolor: '#303030' }, yaxis: { color: '#888', gridcolor: '#303030' }, margin: { l: 40, r: 20, b: 30, t: 20 } });
     }
@@ -872,27 +1483,72 @@ class CurvasBezierModule {
     }
 }
 
-// =============================================================================
-// 4. INICIALIZACIÓN Y MONTAJE GLOBAL
-// =============================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const app = new MathUI();
 
-    const SVG_SURF = '<svg viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18s-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18s.41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9z"/></svg>';
+    const SVG_TRIG = '<svg viewBox="0 0 24 24"><path d="M3 21h18v-2H6.41L21 4.41 19.59 3 3 19.59V21z"/></svg>';
+    const SVG_ALGB = '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6 14H7v-2h6v2zm4-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>';
     const SVG_VEC = '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+    const SVG_MATR = '<svg viewBox="0 0 24 24"><path d="M4 3h4v2H6v14h2v2H4V3zm16 0h-4v2h2v14h-2v2h4V3zm-9 4h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>';
     const SVG_DERIV = '<svg viewBox="0 0 24 24"><path d="M7 2v2h1v14a4 4 0 0 0 4 4 4 4 0 0 0 4-4V4h1V2h-4v2h1v14a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4h1V2H7z"/></svg>';
     const SVG_INTEG = '<svg viewBox="0 0 24 24"><path d="M14.5 2C12 2 11 3.5 11 6v12c0 2.5-1 4-3.5 4S4 20.5 4 18h2c0 1.5.5 2 1.5 2 1.5 0 2-1 2-3V6c0-2.5 1-4 3.5-4s3.5 1.5 3.5 4h-2c0-1.5-.5-2-1.5-2z"/></svg>';
     const SVG_REGR = '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>';
     const SVG_BEZIER = '<svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM4 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm16-4c-1.1 0-2 .9-2 2 0 .2.03.38.08.56l-5.64 5.64C12.18 10.1 11.83 10 11.5 10c-.33 0-.68.1-1 .2L4.86 4.56C4.91 4.38 5 4.2 5 4c0-1.1-.9-2-2-2S1 2.9 1 4s.9 2 2 2c.2 0 .38-.05.56-.1l5.64 5.64c-.1.32-.2.67-.2 1 0 .33.1.68.2 1l-5.64 5.64c-.18-.05-.36-.08-.56-.08-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2c0-.2-.05-.38-.1-.56l5.64-5.64c.32.1.67.2 1 .2.33 0 .68-.1 1-.2l5.64 5.64c-.05.18-.08.36-.08.56 0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2c-.2 0-.38.05-.56.1l-5.64-5.64c.1-.32.2-.67.2-1 0-.33-.1-.68-.2-1l5.64-5.64c.18.05.36.1.56.1 1.1 0 2-.9 2-2s-.9-2-2-2z"/></svg>';
+    const SVG_NEWTON = '<svg viewBox="0 0 24 24"><path d="M12 2.5s4 4.5 4 9.5c0 2.2-.9 4.3-2.3 5.7L15 21l-3-1.5L9 21l1.3-3.3C8.9 16.3 8 14.2 8 12c0-5 4-9.5 4-9.5z"/></svg>';
+    const SVG_EINSTEIN = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>';
+    const SVG_SURF = '<svg viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18s-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18s.41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9z"/></svg>';
 
     app.registerModule("superficies", "Superficie 3D & Mesh", SVG_SURF, new Superficies3DModule());
     app.registerModule("vectores", "Vectores 3D", SVG_VEC, new Vectores3DModule());
+    app.registerModule("trigonometria", "Trigonometría", SVG_TRIG, new TrigonometriaModule());
+    app.registerModule("aritmetica", "Aritmética & Álgebra", SVG_ALGB, new AritmeticaAlgebraModule());
+    app.registerModule("matrices", "Matrices & 2D", SVG_MATR, new MatricesModule());
     app.registerModule("derivadas", "Derivadas 2D", SVG_DERIV, new DerivadasModule());
     app.registerModule("integrales", "Integrales & Áreas", SVG_INTEG, new IntegralesModule());
     app.registerModule("regresion", "Regresión Polinómica", SVG_REGR, new RegresionPolinomicaModule());
     app.registerModule("bezier", "Curvas Bézier", SVG_BEZIER, new CurvasBezierModule());
+    app.registerModule("newton", "Física Newton", SVG_NEWTON, new NewtonPhysicsModule());
+    app.registerModule("einstein", "Física Einstein", SVG_EINSTEIN, new EinsteinPhysicsModule());
 });
 </script>
 
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 </html>
