@@ -3,32 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Matemático & Vectorial HD</title>
+    <title>MathStudio Pro - Entorno Matemático & Mallas 3D</title>
 
-    <!-- Librerías de Cálculo y Visualización -->
+    <!-- Librerías de Cálculo y Gráficas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.18.2/plotly.min.js"></script>
-
-    <!-- Iconos de Material Symbols para tus componentes -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <!-- Tu librería de UI modular -->
-    <script src="https://unonibes4a.github.io/pintaresta/aggio.js"></script>
+    <!-- Tu librería de componentes modular -->
+    <script src="../aggio.js"></script>
 
     <style>
         :root {
-            --bg-main: #181818;
-            --bg-panel: #242424;
+            --bg-main: #141414;
+            --bg-panel: #202020;
             --accent: #5c9ce6;
-            --border: #353535;
+            --border: #303030;
             --text: #e0e0e0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-main);
@@ -41,23 +35,19 @@
             overflow: hidden;
         }
 
-        /* BARRA SUPERIOR DE PESTAÑAS (TABS HEADER) */
-        #tab-header {
+        #app-tab-header {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
-            background: #202020;
+            background: #1a1a1a;
             border-bottom: 1px solid var(--border);
             overflow-x: auto;
             flex-shrink: 0;
         }
+        #app-tab-header::-webkit-scrollbar { height: 4px; }
 
-        #tab-header::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .tab-brand {
+        .app-brand {
             font-size: 14px;
             font-weight: 700;
             color: var(--accent);
@@ -68,8 +58,7 @@
             gap: 6px;
         }
 
-        /* CONTENEDOR PRINCIPAL DE TRABAJO */
-        #workspace-area {
+        #app-workspace {
             flex: 1;
             position: relative;
             overflow-y: auto;
@@ -78,54 +67,35 @@
             height: 100%;
         }
 
-        /* VISTA DE CADA PESTAÑA */
-        .tab-content {
+        .module-view {
             display: none;
             width: 100%;
             height: 100%;
-            animation: fadeIn 0.2s ease-in-out forwards;
         }
 
-        .tab-content.active {
+        .module-view.active {
             display: grid;
             gap: 16px;
-            /* En PC y TV: Controles a la izquierda y gráfica panorámica a la derecha */
-            grid-template-columns: minmax(360px, 420px) 1fr;
+            grid-template-columns: minmax(390px, 460px) 1fr;
             height: calc(100vh - 85px);
         }
 
-        /* RESPONSIVIDAD: En Tablets y Celulares pasa a 1 sola columna */
         @media (max-width: 980px) {
-            body {
-                overflow-y: auto;
-                height: auto;
-            }
-            #workspace-area {
-                overflow-y: visible;
-                height: auto;
-            }
-            .tab-content.active {
-                display: flex;
-                flex-direction: column;
-                height: auto;
-            }
-            .panel-graph-column {
-                min-height: 480px !important;
-                height: 550px !important;
-            }
+            body { overflow-y: auto; height: auto; }
+            #app-workspace { overflow-y: visible; height: auto; }
+            .module-view.active { display: flex; flex-direction: column; height: auto; }
+            .module-graph-box { min-height: 480px !important; height: 550px !important; }
         }
 
-        /* COLUMNA DE CONTROLES */
-        .panel-controls-column {
+        .module-controls-box {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 6px;
         }
 
-        /* COLUMNA DE GRÁFICA GIGANTE */
-        .panel-graph-column {
+        .module-graph-box {
             background: var(--bg-panel);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -134,18 +104,18 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            min-height: 500px;
+            min-height: 450px;
+            position: relative;
         }
 
-        .graph-plotly {
+        .graph-plotly-target {
             width: 100%;
             height: 100%;
             flex: 1;
         }
 
-        /* TARJETA DE RESULTADOS */
         .math-result-card {
-            background: #1e1e1e;
+            background: #181818;
             border-left: 3px solid var(--accent);
             padding: 10px 14px;
             border-radius: 0 6px 6px 0;
@@ -155,16 +125,8 @@
             font-family: Consolas, monospace;
         }
 
-        .math-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            width: 100%;
-        }
-
-        .math-row > * {
-            flex: 1;
-        }
+        .math-row { display: flex; gap: 8px; align-items: center; width: 100%; }
+        .math-row > * { flex: 1; }
 
         .math-tag {
             font-size: 11px;
@@ -175,509 +137,297 @@
             font-weight: 600;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
+        .code-preview-box {
+            background: #111111;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 11px;
+            color: #9cdcfe;
+            max-height: 220px;
+            overflow-y: auto;
+            white-space: pre;
+            line-height: 1.45;
+            user-select: text;
         }
     </style>
 </head>
 <body>
 
-    <!-- BARRA DE PESTAÑAS (TABS) -->
-    <div id="tab-header">
-        <div class="tab-brand">
-            <span class="material-symbols-outlined">calculate</span>
-            <span>MathLab Studio</span>
+    <header id="app-tab-header">
+        <div class="app-brand">
+            <span class="material-symbols-outlined">view_in_ar</span>
+            <span>MathStudio 3D Mesh</span>
         </div>
-        <div id="tabs-buttons-container" style="display: flex; gap: 8px;"></div>
-    </div>
+        <div id="tab-buttons-mount" style="display: flex; gap: 8px;"></div>
+    </header>
 
-    <!-- ÁREA DE PESTAÑAS -->
-    <main id="workspace-area">
-
-        <!-- TAB 1: VECTORES 3D -->
-        <section id="tab-vec" class="tab-content active">
-            <div class="panel-controls-column" id="vec-controls-slot"></div>
-            <div class="panel-graph-column">
-                <div id="plot-vectorial-3d" class="graph-plotly"></div>
-            </div>
-        </section>
-
-        <!-- TAB 2: CÁLCULO 2D -->
-        <section id="tab-calc" class="tab-content">
-            <div class="panel-controls-column" id="calc-controls-slot"></div>
-            <div class="panel-graph-column">
-                <div id="plot-calculo-2d" class="graph-plotly"></div>
-            </div>
-        </section>
-
-        <!-- TAB 3: REGRESIÓN POLINÓMICA -->
-        <section id="tab-reg" class="tab-content">
-            <div class="panel-controls-column" id="reg-controls-slot"></div>
-            <div class="panel-graph-column">
-                <div id="plot-regression-2d" class="graph-plotly"></div>
-            </div>
-        </section>
-
-        <!-- TAB 4: SUPERFICIES 3D -->
-        <section id="tab-surf" class="tab-content">
-            <div class="panel-controls-column" id="surf-controls-slot"></div>
-            <div class="panel-graph-column">
-                <div id="plot-superficie-3d" class="graph-plotly"></div>
-            </div>
-        </section>
-
-    </main>
+    <main id="app-workspace"></main>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-    // =========================================================================
-    // 0. GENERADOR DE PESTAÑAS (TABS) CON GiovanniBoton
-    // =========================================================================
-    const tabsConfig = [
-        { id: "tab-vec", label: "Vectores 3D & Proyección", icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>' },
-        { id: "tab-calc", label: "Cálculo 2D & Áreas", icon: '<svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>' },
-        { id: "tab-reg", label: "Regresión Polinómica", icon: '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>' },
-        { id: "tab-surf", label: "Superficies 3D", icon: '<svg viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18s-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18s.41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9z"/></svg>' }
-    ];
-
-    const tabsContainer = document.getElementById("tabs-buttons-container");
-    const tabButtons = [];
-
-    function switchTab(tabId) {
-        document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-        const target = document.getElementById(tabId);
-        if (target) target.classList.add("active");
-
-        // Actualizar colores de los botones
-        tabButtons.forEach(btn => {
-            if (btn._tabId === tabId) {
-                btn.setStyle({ backgroundColor: "#5c9ce6", color: "#ffffff" });
-            } else {
-                btn.setStyle({ backgroundColor: "#2b2b2b", color: "#b0b0b0" });
-            }
-        });
-
-        // Forzar redimensionamiento óptimo del gráfico activo en la pantalla
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 50);
-    }
-
-    tabsConfig.forEach((cfg, idx) => {
-        const btn = new GiovanniBoton({
-            svg: cfg.icon,
-            texto: cfg.label,
-            ancho: 160,
-            alto: 34,
-            position: 'static',
-            background: idx === 0 ? "#5c9ce6" : "#2b2b2b",
-            color: idx === 0 ? "#ffffff" : "#b0b0b0",
-            onClick: () => switchTab(cfg.id)
-        });
-        btn._tabId = cfg.id;
-        // Ajuste estilístico para formato pestaña
-        btn.el.style.width = "auto";
-        btn.el.style.padding = "0 12px";
-        btn.el.style.gap = "6px";
-        tabButtons.push(btn);
-        btn.montar(tabsContainer);
-    });
-
-    // =========================================================================
-    // 1. MÓDULO VECTORES 3D
-    // =========================================================================
-    const vecSlot = document.getElementById("vec-controls-slot");
-    const panelVec = new GiovanniContainerSimple({ title: "Controles de Vectores 3D", isOpen: true, width: "100%" });
-
-    const lblU = document.createElement("div");
-    lblU.innerHTML = `<span class="math-tag">Vector U (Azul)</span>`;
-    panelVec.appendChild(lblU);
-
-    const rowU = document.createElement("div");
-    rowU.className = "math-row";
-    const uX = new GiovanniInputNumber({ label: "Ux", value: 3, step: 0.5 });
-    const uY = new GiovanniInputNumber({ label: "Uy", value: 4, step: 0.5 });
-    const uZ = new GiovanniInputNumber({ label: "Uz", value: 1, step: 0.5 });
-    rowU.appendChild(uX.element); rowU.appendChild(uY.element); rowU.appendChild(uZ.element);
-    panelVec.appendChild(rowU);
-
-    const lblV = document.createElement("div");
-    lblV.innerHTML = `<span class="math-tag">Vector V (Verde)</span>`;
-    panelVec.appendChild(lblV);
-
-    const rowV = document.createElement("div");
-    rowV.className = "math-row";
-    const vX = new GiovanniInputNumber({ label: "Vx", value: 4, step: 0.5 });
-    const vY = new GiovanniInputNumber({ label: "Vy", value: 1, step: 0.5 });
-    const vZ = new GiovanniInputNumber({ label: "Vz", value: 3, step: 0.5 });
-    rowV.appendChild(vX.element); rowV.appendChild(vY.element); rowV.appendChild(vZ.element);
-    panelVec.appendChild(rowV);
-
-    const toggleProj = new GiovanniToggle({ label: "Mostrar Proyección Proj_v(u)", checked: true });
-    const toggleCross = new GiovanniToggle({ label: "Mostrar Producto Cruz (Ortogonal)", checked: true });
-    panelVec.appendChild(toggleProj.element);
-    panelVec.appendChild(toggleCross.element);
-
-    const resVec = document.createElement("div");
-    resVec.className = "math-result-card";
-    panelVec.appendChild(resVec);
-
-    vecSlot.appendChild(panelVec.element);
-
-    function actualizarVectores() {
-        const u = [uX.getValue(), uY.getValue(), uZ.getValue()];
-        const v = [vX.getValue(), vY.getValue(), vZ.getValue()];
-
-        const magU = Math.sqrt(u[0]**2 + u[1]**2 + u[2]**2);
-        const magV = Math.sqrt(v[0]**2 + v[1]**2 + v[2]**2);
-        const dot = u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
-
-        let angDeg = 0;
-        if (magU > 0 && magV > 0) {
-            const cosVal = Math.max(-1, Math.min(1, dot / (magU * magV)));
-            angDeg = (Math.acos(cosVal) * 180 / Math.PI);
-        }
-
-        const cross = [
-            u[1]*v[2] - u[2]*v[1],
-            u[2]*v[0] - u[0]*v[2],
-            u[0]*v[1] - u[1]*v[0]
-        ];
-        const magCross = Math.sqrt(cross[0]**2 + cross[1]**2 + cross[2]**2);
-
-        let proj = [0, 0, 0];
-        if (magV > 0) {
-            const sc = dot / (magV**2);
-            proj = [sc * v[0], sc * v[1], sc * v[2]];
-        }
-
-        resVec.innerHTML = `
-            • <b>||u||</b>: ${magU.toFixed(3)} | <b>||v||</b>: ${magV.toFixed(3)}<br>
-            • <b>Producto Punto (u · v)</b>: ${dot.toFixed(3)}<br>
-            • <b>Ángulo θ</b>: ${angDeg.toFixed(2)}°<br>
-            • <b>Producto Cruz (u × v)</b>: (${cross.map(n => n.toFixed(2)).join(', ')})<br>
-            • <b>Proyección Proj_v(u)</b>: (${proj.map(n => n.toFixed(2)).join(', ')})
-        `;
-
-        const traces = [
-            {
-                type: 'scatter3d', mode: 'lines+markers', name: 'Vector U',
-                x: [0, u[0]], y: [0, u[1]], z: [0, u[2]],
-                line: { width: 8, color: '#3b82f6' },
-                marker: { size: [0, 6], color: '#3b82f6' }
-            },
-            {
-                type: 'scatter3d', mode: 'lines+markers', name: 'Vector V',
-                x: [0, v[0]], y: [0, v[1]], z: [0, v[2]],
-                line: { width: 8, color: '#10b981' },
-                marker: { size: [0, 6], color: '#10b981' }
-            }
-        ];
-
-        if (toggleCross.getValue() && magCross > 0) {
-            traces.push({
-                type: 'scatter3d', mode: 'lines+markers', name: 'Cruz (u × v)',
-                x: [0, cross[0]], y: [0, cross[1]], z: [0, cross[2]],
-                line: { width: 8, color: '#f59e0b' },
-                marker: { size: [0, 6], color: '#f59e0b' }
-            });
-        }
-
-        if (toggleProj.getValue() && magV > 0) {
-            traces.push({
-                type: 'scatter3d', mode: 'lines+markers', name: 'Proj_v(u)',
-                x: [0, proj[0]], y: [0, proj[1]], z: [0, proj[2]],
-                line: { width: 6, dash: 'dot', color: '#ec4899' },
-                marker: { size: [0, 5], color: '#ec4899' }
-            });
-            traces.push({
-                type: 'scatter3d', mode: 'lines', name: 'Ortogonal a V',
-                x: [u[0], proj[0]], y: [u[1], proj[1]], z: [u[2], proj[2]],
-                line: { width: 3, dash: 'dash', color: '#9ca3af' }
-            });
-        }
-
-        const layout = {
-            paper_bgcolor: '#242424',
-            plot_bgcolor: '#242424',
-            scene: {
-                xaxis: { title: 'X', color: '#888', gridcolor: '#383838' },
-                yaxis: { title: 'Y', color: '#888', gridcolor: '#383838' },
-                zaxis: { title: 'Z', color: '#888', gridcolor: '#383838' }
-            },
-            margin: { l: 0, r: 0, b: 0, t: 10 },
-            legend: { font: { color: '#ccc' }, orientation: 'h' }
-        };
-
-        Plotly.react("plot-vectorial-3d", traces, layout, { responsive: true });
-    }
-
-    [uX, uY, uZ, vX, vY, vZ].forEach(c => c.options.onChange = actualizarVectores);
-    toggleProj.options.onChange = actualizarVectores;
-    toggleCross.options.onChange = actualizarVectores;
-
-    // =========================================================================
-    // 2. MÓDULO CÁLCULO 2D
-    // =========================================================================
-    const calcSlot = document.getElementById("calc-controls-slot");
-    const panelCalc = new GiovanniContainerSimple({ title: "Controles de Análisis 2D", isOpen: true, width: "100%" });
-
-    const inFuncF = new GiovanniInputText({ label: "Función f(x)", value: "sin(x) + 0.3*x" });
-    const inFuncG = new GiovanniInputText({ label: "Función g(x) [Área entre curvas]", value: "cos(x)" });
-    panelCalc.appendChild(inFuncF.element);
-    panelCalc.appendChild(inFuncG.element);
-
-    const rowLim = document.createElement("div");
-    rowLim.className = "math-row";
-    const limA = new GiovanniInputNumber({ label: "Límite a", value: 0, step: 0.5 });
-    const limB = new GiovanniInputNumber({ label: "Límite b", value: 4, step: 0.5 });
-    rowLim.appendChild(limA.element); rowLim.appendChild(limB.element);
-    panelCalc.appendChild(rowLim);
-
-    const sliderTanX = new GiovanniSlider({ label: "Tangente en x₀", min: -5, max: 5, step: 0.1, value: 1.5 });
-    panelCalc.appendChild(sliderTanX.element);
-
-    const resCalc = document.createElement("div");
-    resCalc.className = "math-result-card";
-    panelCalc.appendChild(resCalc);
-
-    calcSlot.appendChild(panelCalc.element);
-
-    function actualizarCalculo() {
-        const eqF = inFuncF.getValue();
-        const eqG = inFuncG.getValue();
-        const a = limA.getValue();
-        const b = limB.getValue();
-        const x0 = sliderTanX.getValue();
-
-        let derivF = "Error", deriv2F = "Error", valF_x0 = 0, slope = 0;
+// =============================================================================
+// FUNCIÓN AUXILIAR DE PLOTEO SEGURO (CON AUTO-RECUPERACIÓN DE WEBGL)
+// =============================================================================
+function safePlot(div, data, layout) {
+    if (!div || div.clientWidth < 10 || div.clientHeight < 10) return;
+    try {
+        Plotly.react(div, data, layout, { responsive: true, displayModeBar: false });
+    } catch (err) {
+        console.warn("Recuperando contexto WebGL...", err);
         try {
-            const d1 = math.derivative(eqF, 'x');
-            derivF = d1.toString();
-            deriv2F = math.derivative(d1, 'x').toString();
-            valF_x0 = math.evaluate(eqF, { x: x0 });
-            slope = math.evaluate(derivF, { x: x0 });
-        } catch(e) {}
-
-        const N = 300;
-        const h = (b - a) / N;
-        let integralF = 0, areaBetween = 0;
-        const fillX = [], fillY1 = [], fillY2 = [];
-
-        if (b > a) {
-            for (let i = 0; i <= N; i++) {
-                const cx = a + i * h;
-                let y1 = 0, y2 = 0;
-                try { y1 = math.evaluate(eqF, { x: cx }); } catch(e){}
-                try { y2 = math.evaluate(eqG, { x: cx }); } catch(e){}
-
-                fillX.push(cx); fillY1.push(y1); fillY2.push(y2);
-                const w = (i === 0 || i === N) ? 0.5 : 1;
-                integralF += w * y1 * h;
-                areaBetween += w * Math.abs(y1 - y2) * h;
-            }
-        }
-
-        resCalc.innerHTML = `
-            • <b>f'(x)</b>: ${derivF}<br>
-            • <b>f''(x)</b>: ${deriv2F}<br>
-            • <b>Tangente en x₀=${x0}</b>: y = ${slope.toFixed(3)}(x - ${x0}) + ${valF_x0.toFixed(3)}<br>
-            • <b>∫ f(x) dx [${a}, ${b}]</b>: ${integralF.toFixed(4)}<br>
-            • <b>Área entre f y g</b>: ${areaBetween.toFixed(4)} u²
-        `;
-
-        const plotX = [], plotYF = [], plotYG = [], plotYTan = [];
-        const xMin = Math.min(-6, a - 1), xMax = Math.max(6, b + 1);
-        const steps = 300;
-        const dx = (xMax - xMin) / steps;
-
-        for (let i = 0; i <= steps; i++) {
-            const x = xMin + i * dx;
-            plotX.push(x);
-            try { plotYF.push(math.evaluate(eqF, { x })); } catch(e){ plotYF.push(null); }
-            try { plotYG.push(math.evaluate(eqG, { x })); } catch(e){ plotYG.push(null); }
-            plotYTan.push(valF_x0 + slope * (x - x0));
-        }
-
-        const traces = [
-            { x: plotX, y: plotYF, mode: 'lines', name: 'f(x)', line: { color: '#3b82f6', width: 2.5 } },
-            { x: plotX, y: plotYG, mode: 'lines', name: 'g(x)', line: { color: '#10b981', width: 2 } },
-            { x: plotX, y: plotYTan, mode: 'lines', name: 'Tangente', line: { color: '#f59e0b', width: 1.5, dash: 'dash' } },
-            { x: [x0], y: [valF_x0], mode: 'markers', name: 'Punto Tangente', marker: { size: 8, color: '#f59e0b' } }
-        ];
-
-        if (fillX.length > 0) {
-            traces.push({
-                x: [...fillX, ...fillX.slice().reverse()],
-                y: [...fillY1, ...fillY2.slice().reverse()],
-                fill: 'toself',
-                fillcolor: 'rgba(92, 156, 230, 0.22)',
-                line: { width: 0 },
-                name: 'Área Comprendida'
-            });
-        }
-
-        const layout = {
-            paper_bgcolor: '#242424',
-            plot_bgcolor: '#242424',
-            xaxis: { color: '#888', gridcolor: '#353535', zerolinecolor: '#555' },
-            yaxis: { color: '#888', gridcolor: '#353535', zerolinecolor: '#555' },
-            margin: { l: 40, r: 20, b: 30, t: 20 },
-            legend: { font: { color: '#ccc' }, orientation: 'h' }
-        };
-
-        Plotly.react("plot-calculo-2d", traces, layout, { responsive: true });
-    }
-
-    inFuncF.options.onChange = actualizarCalculo;
-    inFuncG.options.onChange = actualizarCalculo;
-    limA.options.onChange = actualizarCalculo;
-    limB.options.onChange = actualizarCalculo;
-    sliderTanX.options.onInput = actualizarCalculo;
-
-    // =========================================================================
-    // 3. MÓDULO REGRESIÓN POLINÓMICA
-    // =========================================================================
-    const regSlot = document.getElementById("reg-controls-slot");
-    const panelReg = new GiovanniContainerSimple({ title: "Controles de Regresión", isOpen: true, width: "100%" });
-
-    const inPoints = new GiovanniInputText({
-        label: "Puntos (x,y)",
-        value: "(1, 1.2), (2, 3.8), (3, 8.9), (4, 16.2), (5, 24.8)"
-    });
-    panelReg.appendChild(inPoints.element);
-
-    const degReg = new GiovanniInputNumber({ label: "Grado Polinomio", min: 1, max: 5, step: 1, value: 2 });
-    panelReg.appendChild(degReg.element);
-
-    const inEvalX = new GiovanniInputNumber({ label: "Calcular y para x =", value: 6, step: 0.5 });
-    panelReg.appendChild(inEvalX.element);
-
-    const resReg = document.createElement("div");
-    resReg.className = "math-result-card";
-    panelReg.appendChild(resReg);
-
-    regSlot.appendChild(panelReg.element);
-
-    function actualizarRegresion() {
-        const text = inPoints.getValue();
-        const degree = degReg.getValue();
-        const evalX = inEvalX.getValue();
-
-        const pts = [];
-        const regex = /\(([^,]+),\s*([^)]+)\)/g;
-        let match;
-        while ((match = regex.exec(text)) !== null) {
-            const x = parseFloat(match[1]);
-            const y = parseFloat(match[2]);
-            if (!isNaN(x) && !isNaN(y)) pts.push({ x, y });
-        }
-
-        if (pts.length < degree + 1) {
-            resReg.innerHTML = `<span style="color:#ef4444">Se requieren al menos ${degree + 1} puntos para grado ${degree}.</span>`;
-            return;
-        }
-
-        const X = [], Y = [];
-        for (let i = 0; i <= degree; i++) {
-            X[i] = [];
-            for (let j = 0; j <= degree; j++) {
-                X[i][j] = pts.reduce((sum, p) => sum + Math.pow(p.x, i + j), 0);
-            }
-            Y[i] = pts.reduce((sum, p) => sum + p.y * Math.pow(p.x, i), 0);
-        }
-
-        let coeffs = [];
-        try {
-            coeffs = math.lusolve(X, Y).map(c => c[0]);
+            Plotly.purge(div);
+            Plotly.newPlot(div, data, layout, { responsive: true, displayModeBar: false });
         } catch(e) {
-            resReg.innerHTML = `<span style="color:#ef4444">Error al resolver mínimos cuadrados.</span>`;
-            return;
+            console.error("Fallo crítico en WebGL:", e);
         }
+    }
+}
 
-        let eqStr = "y = ";
-        for (let i = degree; i >= 0; i--) {
-            const val = coeffs[i];
-            const sign = val >= 0 ? (i === degree ? "" : " + ") : " - ";
-            const absV = Math.abs(val).toFixed(4);
-            if (i > 1) eqStr += `${sign}${absV}x^${i}`;
-            else if (i === 1) eqStr += `${sign}${absV}x`;
-            else eqStr += `${sign}${absV}`;
-        }
+// Normaliza multiplicaciones implícitas como 2x -> 2*x, x y -> x*y
+function sanitizeMathExpression(expr) {
+    if (!expr || typeof expr !== 'string') return "0";
+    let s = expr.trim();
+    s = s.replace(/(\d)\s*([a-zA-Z(])/g, '$1*$2');
+    s = s.replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1*$2');
+    return s;
+}
 
-        // Predicción para evalX
-        const predY = coeffs.reduce((acc, c, idx) => acc + c * Math.pow(evalX, idx), 0);
+// =============================================================================
+// 1. CLASE MAESTRA DE INTERFAZ GRÁFICA (MathUI)
+// =============================================================================
+class MathUI {
+    constructor() {
+        this.headerMount = document.getElementById("tab-buttons-mount");
+        this.workspaceMount = document.getElementById("app-workspace");
+        this.modules = [];
+        this.buttons = [];
+        this.activeModuleId = null;
 
-        // Coeficiente R²
-        const yAvg = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-        let ssTot = 0, ssRes = 0;
-        pts.forEach(p => {
-            const yP = coeffs.reduce((acc, c, idx) => acc + c * Math.pow(p.x, idx), 0);
-            ssTot += (p.y - yAvg)**2;
-            ssRes += (p.y - yP)**2;
+        let resizeTimer = null;
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => this.handleGlobalResize(), 100);
         });
-        const r2 = ssTot > 0 ? (1 - (ssRes / ssTot)) : 1;
-
-        resReg.innerHTML = `
-            • <b>Ajuste</b>: ${eqStr}<br>
-            • <b>Bondad R²</b>: ${r2.toFixed(5)} (${(r2*100).toFixed(2)}%)<br>
-            • <b>Estimación f(${evalX})</b>: y = <b>${predY.toFixed(4)}</b>
-        `;
-
-        const xVals = pts.map(p => p.x);
-        const minX = Math.min(...xVals, evalX) - 1;
-        const maxX = Math.max(...xVals, evalX) + 1;
-        const curveX = [], curveY = [];
-        const steps = 200;
-        for (let i = 0; i <= steps; i++) {
-            const cx = minX + (i * (maxX - minX) / steps);
-            curveX.push(cx);
-            curveY.push(coeffs.reduce((acc, c, idx) => acc + c * Math.pow(cx, idx), 0));
-        }
-
-        const traces = [
-            { x: pts.map(p => p.x), y: pts.map(p => p.y), mode: 'markers', name: 'Datos Experimentales', marker: { size: 9, color: '#ef4444' } },
-            { x: curveX, y: curveY, mode: 'lines', name: 'Curva de Regresión', line: { color: '#3b82f6', width: 2 } },
-            { x: [evalX], y: [predY], mode: 'markers', name: `f(${evalX})`, marker: { size: 10, color: '#10b981', symbol: 'diamond' } }
-        ];
-
-        const layout = {
-            paper_bgcolor: '#242424',
-            plot_bgcolor: '#242424',
-            xaxis: { color: '#888', gridcolor: '#353535' },
-            yaxis: { color: '#888', gridcolor: '#353535' },
-            margin: { l: 40, r: 20, b: 30, t: 20 },
-            legend: { font: { color: '#ccc' }, orientation: 'h' }
-        };
-
-        Plotly.react("plot-regression-2d", traces, layout, { responsive: true });
     }
 
-    inPoints.options.onChange = actualizarRegresion;
-    degReg.options.onChange = actualizarRegresion;
-    inEvalX.options.onChange = actualizarRegresion;
+    registerModule(id, label, iconSvg, moduleInstance) {
+        const section = document.createElement("section");
+        section.id = `view-${id}`;
+        section.className = "module-view";
 
-    // =========================================================================
-    // 4. MÓDULO SUPERFICIES 3D
-    // =========================================================================
-    const surfSlot = document.getElementById("surf-controls-slot");
-    const panelSurf = new GiovanniContainerSimple({ title: "Controles Superficie 3D", isOpen: true, width: "100%" });
+        const controlsCol = document.createElement("div");
+        controlsCol.className = "module-controls-box";
 
-    const inSurf = new GiovanniInputText({ label: "Ecuación z = f(x, y)", value: "sin(sqrt(x^2 + y^2))" });
-    panelSurf.appendChild(inSurf.element);
+        const graphCol = document.createElement("div");
+        graphCol.className = "module-graph-box";
 
-    const sliderRange = new GiovanniSlider({ label: "Radio de Dominio [-L, L]", min: 2, max: 12, step: 0.5, value: 5 });
-    panelSurf.appendChild(sliderRange.element);
+        const plotDiv = document.createElement("div");
+        plotDiv.id = `plot-${id}`;
+        plotDiv.className = "graph-plotly-target";
+        graphCol.appendChild(plotDiv);
 
-    surfSlot.appendChild(panelSurf.element);
+        section.appendChild(controlsCol);
+        section.appendChild(graphCol);
+        this.workspaceMount.appendChild(section);
 
-    function actualizarSuperficie() {
-        const eq = inSurf.getValue();
-        const L = sliderRange.getValue();
-        const steps = 30;
+        const tabBtn = new GiovanniBoton({
+            svg: iconSvg,
+            texto: label,
+            ancho: 170,
+            alto: 34,
+            position: "static",
+            background: "#242424",
+            color: "#9e9e9e",
+            onClick: () => this.switchTab(id)
+        });
+        tabBtn.el.style.width = "auto";
+        tabBtn.el.style.padding = "0 12px";
+        tabBtn.el.style.gap = "6px";
+        tabBtn._moduleId = id;
+        tabBtn.montar(this.headerMount);
+        this.buttons.push(tabBtn);
+
+        moduleInstance.init(controlsCol, plotDiv);
+        this.modules.push({ id, section, plotDiv, instance: moduleInstance });
+
+        if (this.modules.length === 1) {
+            this.switchTab(id);
+        }
+    }
+
+    switchTab(moduleId) {
+        this.activeModuleId = moduleId;
+
+        this.modules.forEach(m => {
+            const isActive = (m.id === moduleId);
+            m.section.classList.toggle("active", isActive);
+        });
+
+        this.buttons.forEach(btn => {
+            const isActive = (btn._moduleId === moduleId);
+            btn.setStyle({
+                backgroundColor: isActive ? "#5c9ce6" : "#242424",
+                color: isActive ? "#ffffff" : "#9e9e9e"
+            });
+        });
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const current = this.modules.find(m => m.id === moduleId);
+                if (current && current.instance && current.instance.render) {
+                    current.instance.render();
+                }
+                this.handleGlobalResize();
+            });
+        });
+    }
+
+    handleGlobalResize() {
+        const active = this.modules.find(m => m.id === this.activeModuleId);
+        if (active && active.plotDiv && active.plotDiv.clientWidth > 10 && active.plotDiv.clientHeight > 10) {
+            Plotly.Plots.resize(active.plotDiv);
+        }
+    }
+}
+
+// =============================================================================
+// 2. MÓDULO SUPERFICIES 3D CON PROTECCIÓN TOTAL AL MULTIPLICAR
+// =============================================================================
+class Superficies3DModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.generatedCode = "";
+        this.currentExtension = ".py";
+        this.debounceTimer = null;
+
+        this.panel = new GiovanniContainerSimple({
+            title: "Superficie 3D & Exportador de Malla",
+            isOpen: true,
+            width: "100%"
+        });
+
+        this.inEq = new GiovanniInputText({
+            label: "Ecuación z = f(x, y)",
+            value: "x * y"
+        });
+        this.panel.appendChild(this.inEq.element);
+
+        this.sliderRange = new GiovanniSlider({
+            label: "Radio del Dominio [-L, L]",
+            min: 1,
+            max: 15,
+            step: 0.5,
+            value: 4
+        });
+        this.panel.appendChild(this.sliderRange.element);
+
+        this.sliderRes = new GiovanniSlider({
+            label: "Subdivisiones N",
+            min: 8,
+            max: 44,
+            step: 2,
+            value: 24
+        });
+        this.panel.appendChild(this.sliderRes.element);
+
+        this.selectEngine = new GiovanniSelect({
+            label: "Motor / Formato de Exportación",
+            options: [
+                { label: "Blender 3D (Python Script)", value: "blender" },
+                { label: "Godot Engine 4 (GDScript)", value: "godot" },
+                { label: "Three.js (JavaScript)", value: "threejs" },
+                { label: "Unity Engine (C# MonoBehaviour)", value: "unity" },
+                { label: "Unreal Engine 5 (C++ ProceduralMesh)", value: "unreal" },
+                { label: "Stride Engine (C# VertexBuffer)", value: "stride" }
+            ],
+            value: "blender",
+            onChange: () => this.generateCode()
+        });
+        this.panel.appendChild(this.selectEngine.element);
+
+        const rowBtns = document.createElement("div");
+        rowBtns.className = "math-row";
+        rowBtns.style.marginTop = "8px";
+
+        const iconCopy = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>`;
+        this.btnCopy = new GiovanniBoton({
+            svg: iconCopy,
+            texto: "Copiar Código",
+            ancho: 150,
+            alto: 32,
+            position: "static",
+            onClick: () => this.copyToClipboard()
+        });
+        this.btnCopy.el.style.width = "100%";
+
+        const iconDownload = `<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`;
+        this.btnDownload = new GiovanniBoton({
+            svg: iconDownload,
+            texto: "Descargar Script",
+            ancho: 150,
+            alto: 32,
+            position: "static",
+            background: "#3b82f6",
+            color: "#ffffff",
+            onClick: () => this.downloadCodeFile()
+        });
+        this.btnDownload.el.style.width = "100%";
+
+        rowBtns.appendChild(this.btnCopy.el);
+        rowBtns.appendChild(this.btnDownload.el);
+        this.panel.appendChild(rowBtns);
+
+        this.resCard = document.createElement("div");
+        this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.resCard);
+
+        const lblCode = document.createElement("div");
+        lblCode.innerHTML = `<span class="math-tag">Código Fuente Generado</span>`;
+        lblCode.style.marginTop = "8px";
+        this.panel.appendChild(lblCode);
+
+        this.codePreview = document.createElement("pre");
+        this.codePreview.className = "code-preview-box";
+        this.panel.appendChild(this.codePreview);
+
+        controlsContainer.appendChild(this.panel.element);
+
+        // Control reactivo con Debounce para evitar renderizar en fórmulas incompletas (ej: "x*")
+        const triggerUpdate = () => {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => {
+                this.render();
+                this.generateCode();
+            }, 200);
+        };
+
+        this.inEq.options.onChange = triggerUpdate;
+        this.sliderRange.options.onInput = triggerUpdate;
+        this.sliderRes.options.onInput = triggerUpdate;
+
+        this.generateCode();
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10 || this.plotEl.clientHeight < 10) return;
+
+        const rawEq = this.inEq.getValue();
+        const cleanEq = sanitizeMathExpression(rawEq);
+        const L = this.sliderRange.getValue();
+        const steps = this.sliderRes.getValue();
         const h = (2 * L) / steps;
+
+        // 1. PRE-VALIDACIÓN: Compilar antes de calcular para no romper WebGL si está incompleto
+        let compiled = null;
+        try {
+            compiled = math.compile(cleanEq);
+            const test = compiled.evaluate({ x: 1, y: 1 });
+            if (typeof test !== 'number' || isNaN(test)) throw new Error();
+        } catch (e) {
+            this.resCard.innerHTML = `<span style="color:#f59e0b">Escribiendo fórmula... (Ej: x*y, sin(x)*cos(y), x^2 - y^2)</span>`;
+            return; // Abortar antes de llamar a Plotly
+        }
 
         const xArr = [], yArr = [], zArr = [];
         for (let i = 0; i <= steps; i++) {
@@ -685,100 +435,464 @@ document.addEventListener("DOMContentLoaded", () => {
             yArr.push(-L + i * h);
         }
 
+        let minZ = Infinity, maxZ = -Infinity;
+
+        // 2. GENERAR MATRIZ Z COMPLETA
         for (let i = 0; i <= steps; i++) {
             const row = [];
             const y = yArr[i];
             for (let j = 0; j <= steps; j++) {
                 const x = xArr[j];
+                let zVal = 0.0;
                 try {
-                    const z = math.evaluate(eq, { x, y });
-                    row.push(isFinite(z) ? z : null);
-                } catch(e) {
-                    row.push(null);
+                    const r = compiled.evaluate({ x, y });
+                    if (typeof r === 'number' && isFinite(r) && !isNaN(r)) {
+                        zVal = r;
+                    }
+                } catch(err) {
+                    zVal = 0.0;
                 }
+                if (zVal < minZ) minZ = zVal;
+                if (zVal > maxZ) maxZ = zVal;
+                row.push(zVal);
             }
             zArr.push(row);
         }
 
+        // 3. PROTECCIÓN CRÍTICA DE RANGO Z (Evita división por cero y error uniformMatrix4fv)
+        if (minZ === Infinity || maxZ === -Infinity) {
+            minZ = -1.0; maxZ = 1.0;
+        } else if (Math.abs(maxZ - minZ) < 1e-4) {
+            minZ -= 1.0;
+            maxZ += 1.0;
+        }
+
+        const totalVerts = (steps + 1) * (steps + 1);
+        const totalTris = steps * steps * 2;
+        this.resCard.innerHTML = `
+            • <b>Ecuación</b>: z = ${cleanEq}<br>
+            • <b>Vértices</b>: ${totalVerts.toLocaleString()} | <b>Triángulos</b>: ${totalTris.toLocaleString()}<br>
+            • <b>Rango Z</b>: [${minZ.toFixed(2)}, ${maxZ.toFixed(2)}] | <b>Dominio L</b>: ±${L}
+        `;
+
         const data = [{
-            z: zArr, x: xArr, y: yArr,
+            z: zArr,
+            x: xArr,
+            y: yArr,
             type: 'surface',
             colorscale: 'Viridis',
             showscale: false
         }];
 
         const layout = {
-            paper_bgcolor: '#242424',
-            plot_bgcolor: '#242424',
+            paper_bgcolor: '#202020',
+            plot_bgcolor: '#202020',
             scene: {
+                aspectmode: 'manual',
+                aspectratio: { x: 1, y: 1, z: 0.5 },
                 xaxis: { title: 'X', color: '#888', gridcolor: '#444' },
                 yaxis: { title: 'Y', color: '#888', gridcolor: '#444' },
-                zaxis: { title: 'Z', color: '#888', gridcolor: '#444' }
+                zaxis: {
+                    title: 'Z',
+                    color: '#888',
+                    gridcolor: '#444',
+                    range: [minZ, maxZ] // Fijar rango evita el fallo de uniformMatrix4fv
+                }
             },
             margin: { l: 0, r: 0, b: 0, t: 10 }
         };
 
-        Plotly.react("plot-superficie-3d", data, layout, { responsive: true });
+        safePlot(this.plotEl, data, layout);
     }
 
-    inSurf.options.onChange = actualizarSuperficie;
-    sliderRange.options.onInput = actualizarSuperficie;
+    generateCode() {
+        const engine = this.selectEngine.getValue();
+        const rawEq = sanitizeMathExpression(this.inEq.getValue());
+        const L = this.sliderRange.getValue();
+        const steps = this.sliderRes.getValue();
 
-    // Inicialización
-    setTimeout(() => {
-        actualizarVectores();
-        actualizarCalculo();
-        actualizarRegresion();
-        actualizarSuperficie();
-    }, 150);
+        let code = "";
+        switch (engine) {
+            case "blender":
+                this.currentExtension = ".py";
+                code = this.getBlenderPythonCode(rawEq, L, steps);
+                break;
+            case "godot":
+                this.currentExtension = ".gd";
+                code = this.getGodotGDScriptCode(rawEq, L, steps);
+                break;
+            case "threejs":
+                this.currentExtension = ".js";
+                code = this.getThreeJsCode(rawEq, L, steps);
+                break;
+            case "unity":
+                this.currentExtension = ".cs";
+                code = this.getUnityCSharpCode(rawEq, L, steps);
+                break;
+            case "unreal":
+                this.currentExtension = ".cpp";
+                code = this.getUnrealCppCode(rawEq, L, steps);
+                break;
+            case "stride":
+                this.currentExtension = ".cs";
+                code = this.getStrideCSharpCode(rawEq, L, steps);
+                break;
+        }
 
-    // Ajuste de tamaño en TV, PC o rotación de Tablet/Móvil
-    window.addEventListener("resize", () => {
-        Plotly.Plots.resize(document.getElementById("plot-vectorial-3d"));
-        Plotly.Plots.resize(document.getElementById("plot-calculo-2d"));
-        Plotly.Plots.resize(document.getElementById("plot-regression-2d"));
-        Plotly.Plots.resize(document.getElementById("plot-superficie-3d"));
-    });
+        this.generatedCode = code;
+        this.codePreview.textContent = code;
+    }
+
+    getBlenderPythonCode(eq, L, steps) {
+        let pyEq = eq.replace(/\^/g, '**').replace(/sin\(/g, 'math.sin(').replace(/cos\(/g, 'math.cos(').replace(/sqrt\(/g, 'math.sqrt(');
+        return `# Script Procedural para Blender 3.x / 4.x\nimport bpy, math\n\ndef create_surface():\n    L = ${L}\n    steps = ${steps}\n    h = (2.0 * L) / steps\n    verts, faces = [], []\n    for i in range(steps + 1):\n        y = -L + i * h\n        for j in range(steps + 1):\n            x = -L + j * h\n            try: z = ${pyEq}\n            except: z = 0.0\n            verts.append((x, y, z))\n    for i in range(steps):\n        for j in range(steps):\n            v0 = i * (steps + 1) + j\n            faces.append((v0, v0 + 1, (i + 1) * (steps + 1) + j + 1, (i + 1) * (steps + 1) + j))\n    mesh = bpy.data.meshes.new("MathSurface")\n    mesh.from_pydata(verts, [], faces)\n    mesh.update()\n    obj = bpy.data.objects.new("MathSurfaceObj", mesh)\n    bpy.context.collection.objects.link(obj)\n\ncreate_surface()\n`;
+    }
+
+    getGodotGDScriptCode(eq, L, steps) {
+        let gdEq = eq.replace(/\^/g, '**');
+        return `@tool\nextends MeshInstance3D\n# Godot 4 SurfaceTool Script\n@export var L: float = ${L}\n@export var steps: int = ${steps}\n\nfunc _ready():\n    var st = SurfaceTool.new()\n    st.begin(Mesh.PRIMITIVE_TRIANGLES)\n    var h = (2.0 * L) / float(steps)\n    for i in range(steps):\n        var y0 = -L + float(i)*h\n        var y1 = y0 + h\n        for j in range(steps):\n            var x0 = -L + float(j)*h\n            var x1 = x0 + h\n            var p00 = Vector3(x0, ${gdEq.replace(/x/g, "x0").replace(/y/g, "y0")}, y0)\n            var p10 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y0")}, y0)\n            var p11 = Vector3(x1, ${gdEq.replace(/x/g, "x1").replace(/y/g, "y1")}, y1)\n            st.add_vertex(p00); st.add_vertex(p10); st.add_vertex(p11)\n    st.generate_normals()\n    mesh = st.commit()\n`;
+    }
+
+    getThreeJsCode(eq, L, steps) {
+        let jsEq = eq.replace(/\^/g, '**').replace(/sin\(/g, 'Math.sin(').replace(/sqrt\(/g, 'Math.sqrt(');
+        return `import * as THREE from 'three';\nexport function createSurface() {\n    const L = ${L}, seg = ${steps};\n    const geo = new THREE.PlaneGeometry(2*L, 2*L, seg, seg);\n    const pos = geo.attributes.position;\n    for (let i = 0; i < pos.count; i++) {\n        const x = pos.getX(i), y = pos.getY(i);\n        pos.setZ(i, ${jsEq});\n    }\n    geo.computeVertexNormals();\n    return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x5c9ce6 }));\n}\n`;
+    }
+
+    getUnityCSharpCode(eq, L, steps) {
+        let csEq = eq.replace(/x\^2/g, 'x*x').replace(/y\^2/g, 'y*y').replace(/sin\(/g, 'Mathf.Sin(').replace(/sqrt\(/g, 'Mathf.Sqrt(');
+        return `using UnityEngine;\n[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]\npublic class SurfaceGenerator : MonoBehaviour {\n    void Start() {\n        Mesh m = new Mesh();\n        int steps = ${steps}; float L = ${L}f, h = 2*L/steps;\n        Vector3[] v = new Vector3[(steps+1)*(steps+1)];\n        for (int i=0, y=0; y<=steps; y++) {\n            float yP = -L + y*h;\n            for (int x=0; x<=steps; x++, i++) {\n                float xP = -L + x*h;\n                v[i] = new Vector3(xP, ${csEq.replace(/x/g, "xP").replace(/y/g, "yP")}, yP);\n            }\n        }\n        m.vertices = v;\n        m.RecalculateNormals();\n        GetComponent<MeshFilter>().mesh = m;\n    }\n}\n`;
+    }
+
+    getUnrealCppCode(eq, L, steps) {
+        return `// Unreal Engine 5 ProceduralMesh\n#include "ProceduralMeshComponent.h"\nvoid GenerateMesh(UProceduralMeshComponent* P) {\n    TArray<FVector> V; TArray<int32> T;\n    // Generar vértices y caras con: z = ${eq}\n}\n`;
+    }
+
+    getStrideCSharpCode(eq, L, steps) {
+        return `// Stride Engine Procedural VertexBuffer\nusing Stride.Graphics;\npublic static class MeshGen { /* Buffer procedural para z = ${eq} */ }\n`;
+    }
+
+    copyToClipboard() {
+        navigator.clipboard.writeText(this.generatedCode).then(() => {
+            const orig = this.btnCopy.texto;
+            this.btnCopy.setTexto("¡Copiado!");
+            this.btnCopy.setStyle({ color: "#10b981" });
+            setTimeout(() => {
+                this.btnCopy.setTexto(orig);
+                this.btnCopy.setStyle({ color: "#6d6b6b" });
+            }, 1800);
+        });
+    }
+
+    downloadCodeFile() {
+        const engine = this.selectEngine.getValue();
+        const filename = `SurfaceMesh_${engine}${this.currentExtension}`;
+        const blob = new Blob([this.generatedCode], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+// =============================================================================
+// 3. MÓDULOS DE VECTORES, DERIVADAS, INTEGRALES, REGRESIÓN Y BÉZIER
+// =============================================================================
+class Vectores3DModule {
+    init(controlsContainer, plotElement) {
+        this.plotEl = plotElement;
+        this.panel = new GiovanniContainerSimple({ title: "Álgebra Vectorial 3D", isOpen: true, width: "100%" });
+
+        const lblU = document.createElement("div"); lblU.innerHTML = `<span class="math-tag">Vector U</span>`; this.panel.appendChild(lblU);
+        const rowU = document.createElement("div"); rowU.className = "math-row";
+        this.uX = new GiovanniInputNumber({ label: "Ux", value: 3, step: 0.5 });
+        this.uY = new GiovanniInputNumber({ label: "Uy", value: 2, step: 0.5 });
+        this.uZ = new GiovanniInputNumber({ label: "Uz", value: 1, step: 0.5 });
+        rowU.appendChild(this.uX.element); rowU.appendChild(this.uY.element); rowU.appendChild(this.uZ.element);
+        this.panel.appendChild(rowU);
+
+        const lblV = document.createElement("div"); lblV.innerHTML = `<span class="math-tag">Vector V</span>`; this.panel.appendChild(lblV);
+        const rowV = document.createElement("div"); rowV.className = "math-row";
+        this.vX = new GiovanniInputNumber({ label: "Vx", value: 1, step: 0.5 });
+        this.vY = new GiovanniInputNumber({ label: "Vy", value: 4, step: 0.5 });
+        this.vZ = new GiovanniInputNumber({ label: "Vz", value: 2, step: 0.5 });
+        rowV.appendChild(this.vX.element); rowV.appendChild(this.vY.element); rowV.appendChild(this.vZ.element);
+        this.panel.appendChild(rowV);
+
+        this.toggleProj = new GiovanniToggle({ label: "Proyección Proj_v(u)", checked: true });
+        this.toggleCross = new GiovanniToggle({ label: "Producto Cruz Ortogonal", checked: true });
+        this.panel.appendChild(this.toggleProj.element);
+        this.panel.appendChild(this.toggleCross.element);
+
+        this.resCard = document.createElement("div"); this.resCard.className = "math-result-card"; this.panel.appendChild(this.resCard);
+        controlsContainer.appendChild(this.panel.element);
+
+        [this.uX, this.uY, this.uZ, this.vX, this.vY, this.vZ].forEach(c => c.options.onChange = () => this.render());
+        this.toggleProj.options.onChange = () => this.render();
+        this.toggleCross.options.onChange = () => this.render();
+    }
+
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10 || this.plotEl.clientHeight < 10) return;
+
+        const u = [this.uX.getValue(), this.uY.getValue(), this.uZ.getValue()];
+        const v = [this.vX.getValue(), this.vY.getValue(), this.vZ.getValue()];
+        const magU = Math.hypot(...u), magV = Math.hypot(...v);
+        const dot = u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
+        const angDeg = (magU > 0 && magV > 0) ? (Math.acos(Math.max(-1, Math.min(1, dot / (magU * magV)))) * 180 / Math.PI) : 0;
+        const cross = [u[1]*v[2] - u[2]*v[1], u[2]*v[0] - u[0]*v[2], u[0]*v[1] - u[1]*v[0]];
+        const proj = magV > 0 ? [(dot/magV**2)*v[0], (dot/magV**2)*v[1], (dot/magV**2)*v[2]] : [0,0,0];
+
+        this.resCard.innerHTML = `
+            • <b>||u||</b>: ${magU.toFixed(3)} | <b>||v||</b>: ${magV.toFixed(3)}<br>
+            • <b>Dot (u · v)</b>: ${dot.toFixed(3)} | <b>Ángulo θ</b>: ${angDeg.toFixed(2)}°<br>
+            • <b>Cruz (u × v)</b>: (${cross.map(n => n.toFixed(2)).join(', ')})<br>
+            • <b>Proj_v(u)</b>: (${proj.map(n => n.toFixed(2)).join(', ')})
+        `;
+
+        const traces = [
+            { type: 'scatter3d', mode: 'lines+markers', name: 'Vector U', x: [0, u[0]], y: [0, u[1]], z: [0, u[2]], line: { width: 8, color: '#3b82f6' }, marker: { size: [0,6], color: '#3b82f6' } },
+            { type: 'scatter3d', mode: 'lines+markers', name: 'Vector V', x: [0, v[0]], y: [0, v[1]], z: [0, v[2]], line: { width: 8, color: '#10b981' }, marker: { size: [0,6], color: '#10b981' } }
+        ];
+
+        if (this.toggleCross.getValue() && Math.hypot(...cross) > 0) {
+            traces.push({ type: 'scatter3d', mode: 'lines+markers', name: 'u × v', x: [0, cross[0]], y: [0, cross[1]], z: [0, cross[2]], line: { width: 8, color: '#f59e0b' }, marker: { size: [0,6], color: '#f59e0b' } });
+        }
+        if (this.toggleProj.getValue() && magV > 0) {
+            traces.push({ type: 'scatter3d', mode: 'lines+markers', name: 'Proj_v(u)', x: [0, proj[0]], y: [0, proj[1]], z: [0, proj[2]], line: { width: 6, dash: 'dot', color: '#ec4899' }, marker: { size: [0,5], color: '#ec4899' } });
+        }
+
+        const layout = {
+            paper_bgcolor: '#202020', plot_bgcolor: '#202020',
+            scene: {
+                aspectmode: 'cube',
+                xaxis: { color: '#888', gridcolor: '#383838' },
+                yaxis: { color: '#888', gridcolor: '#383838' },
+                zaxis: { color: '#888', gridcolor: '#383838' }
+            },
+            margin: { l: 0, r: 0, b: 0, t: 10 }, legend: { font: { color: '#ccc' }, orientation: 'h' }
+        };
+        safePlot(this.plotEl, traces, layout);
+    }
+}
+
+class DerivadasModule {
+    init(c, p) {
+        this.plotEl = p;
+        this.panel = new GiovanniContainerSimple({ title: "Cálculo Diferencial 2D", isOpen: true, width: "100%" });
+        this.inputF = new GiovanniInputText({ label: "Función f(x)", value: "sin(x) + 0.3*x" });
+        this.sliderX0 = new GiovanniSlider({ label: "Punto Tangente x₀", min: -6, max: 6, step: 0.1, value: 1.5 });
+        this.resCard = document.createElement("div"); this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.inputF.element); this.panel.appendChild(this.sliderX0.element); this.panel.appendChild(this.resCard);
+        c.appendChild(this.panel.element);
+        this.inputF.options.onChange = () => this.render();
+        this.sliderX0.options.onInput = () => this.render();
+    }
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+        const eq = sanitizeMathExpression(this.inputF.getValue()), x0 = this.sliderX0.getValue();
+        let d1Str = "Error", y0 = 0, mTan = 0;
+        try {
+            const d1 = math.derivative(eq, 'x');
+            d1Str = d1.toString();
+            y0 = math.evaluate(eq, { x: x0 });
+            mTan = math.evaluate(d1Str, { x: x0 });
+        } catch(e){ return; }
+        this.resCard.innerHTML = `• <b>f'(x)</b>: ${d1Str}<br>• <b>Tangente</b>: y = ${mTan.toFixed(3)}(x - ${x0}) + ${y0.toFixed(3)}`;
+        const plotX = [], plotYF = [], plotYTan = [];
+        for (let i = 0; i <= 200; i++) {
+            const x = (x0 - 5) + (i * 10 / 200);
+            plotX.push(x);
+            try { plotYF.push(math.evaluate(eq, { x })); } catch(e){ plotYF.push(null); }
+            plotYTan.push(y0 + mTan * (x - x0));
+        }
+        const traces = [
+            { x: plotX, y: plotYF, mode: 'lines', name: 'f(x)', line: { color: '#3b82f6', width: 2.5 } },
+            { x: plotX, y: plotYTan, mode: 'lines', name: 'Tangente', line: { color: '#f59e0b', width: 1.8, dash: 'dash' } },
+            { x: [x0], y: [y0], mode: 'markers', name: 'P0', marker: { size: 9, color: '#f59e0b' } }
+        ];
+        safePlot(this.plotEl, traces, { paper_bgcolor: '#202020', plot_bgcolor: '#202020', xaxis: { color: '#888', gridcolor: '#303030' }, yaxis: { color: '#888', gridcolor: '#303030' }, margin: { l: 40, r: 20, b: 30, t: 20 } });
+    }
+}
+
+class IntegralesModule {
+    init(c, p) {
+        this.plotEl = p;
+        this.panel = new GiovanniContainerSimple({ title: "Cálculo Integral & Áreas", isOpen: true, width: "100%" });
+        this.inputF = new GiovanniInputText({ label: "Curva f(x)", value: "4 - x^2" });
+        this.inputG = new GiovanniInputText({ label: "Curva g(x)", value: "x + 2" });
+        const rowLim = document.createElement("div"); rowLim.className = "math-row";
+        this.limA = new GiovanniInputNumber({ label: "Límite a", value: -1, step: 0.5 });
+        this.limB = new GiovanniInputNumber({ label: "Límite b", value: 2, step: 0.5 });
+        rowLim.appendChild(this.limA.element); rowLim.appendChild(this.limB.element);
+        this.resCard = document.createElement("div"); this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.inputF.element); this.panel.appendChild(this.inputG.element);
+        this.panel.appendChild(rowLim); this.panel.appendChild(this.resCard);
+        c.appendChild(this.panel.element);
+        this.inputF.options.onChange = () => this.render();
+        this.inputG.options.onChange = () => this.render();
+        this.limA.options.onChange = () => this.render();
+        this.limB.options.onChange = () => this.render();
+    }
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+        const eqF = sanitizeMathExpression(this.inputF.getValue()), eqG = sanitizeMathExpression(this.inputG.getValue());
+        const a = this.limA.getValue(), b = this.limB.getValue();
+        const N = 200, h = (b - a) / N;
+        let intF = 0, area = 0;
+        const fillX = [], fillY1 = [], fillY2 = [];
+        if (b > a) {
+            for (let i = 0; i <= N; i++) {
+                const cx = a + i * h;
+                let y1 = 0, y2 = 0;
+                try { y1 = math.evaluate(eqF, { x: cx }); } catch(e){}
+                try { y2 = math.evaluate(eqG, { x: cx }); } catch(e){}
+                fillX.push(cx); fillY1.push(y1); fillY2.push(y2);
+                const w = (i === 0 || i === N) ? 0.5 : 1;
+                intF += w * y1 * h; area += w * Math.abs(y1 - y2) * h;
+            }
+        }
+        this.resCard.innerHTML = `• <b>∫ f(x) dx</b>: ${intF.toFixed(4)}<br>• <b>Área entre curvas</b>: ${area.toFixed(4)} u²`;
+        const plotX = [], plotYF = [], plotYG = [];
+        for (let i = 0; i <= 200; i++) {
+            const x = (a - 2) + (i * ((b - a) + 4) / 200);
+            plotX.push(x);
+            try { plotYF.push(math.evaluate(eqF, { x })); } catch(e){ plotYF.push(null); }
+            try { plotYG.push(math.evaluate(eqG, { x })); } catch(e){ plotYG.push(null); }
+        }
+        const traces = [
+            { x: plotX, y: plotYF, mode: 'lines', name: 'f(x)', line: { color: '#3b82f6', width: 2 } },
+            { x: plotX, y: plotYG, mode: 'lines', name: 'g(x)', line: { color: '#10b981', width: 2 } }
+        ];
+        if (fillX.length > 0) {
+            traces.push({ x: [...fillX, ...fillX.slice().reverse()], y: [...fillY1, ...fillY2.slice().reverse()], fill: 'toself', fillcolor: 'rgba(92, 156, 230, 0.28)', line: { width: 0 }, name: 'Área' });
+        }
+        safePlot(this.plotEl, traces, { paper_bgcolor: '#202020', plot_bgcolor: '#202020', xaxis: { color: '#888', gridcolor: '#303030' }, yaxis: { color: '#888', gridcolor: '#303030' }, margin: { l: 40, r: 20, b: 30, t: 20 } });
+    }
+}
+
+class RegresionPolinomicaModule {
+    init(c, p) {
+        this.plotEl = p;
+        this.panel = new GiovanniContainerSimple({ title: "Regresión Polinómica", isOpen: true, width: "100%" });
+        this.inPts = new GiovanniInputText({ label: "Puntos (x,y)", value: "(1, 2.1), (2, 4.2), (3, 8.8), (4, 16.5), (5, 26.0)" });
+        this.degInput = new GiovanniInputNumber({ label: "Grado Polinomio", min: 1, max: 5, step: 1, value: 2 });
+        this.resCard = document.createElement("div"); this.resCard.className = "math-result-card";
+        this.panel.appendChild(this.inPts.element); this.panel.appendChild(this.degInput.element); this.panel.appendChild(this.resCard);
+        c.appendChild(this.panel.element);
+        this.inPts.options.onChange = () => this.render();
+        this.degInput.options.onChange = () => this.render();
+    }
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+        const text = this.inPts.getValue(), degree = this.degInput.getValue();
+        const pts = []; const regex = /\(([^,]+),\s*([^)]+)\)/g; let m;
+        while ((m = regex.exec(text)) !== null) {
+            const x = parseFloat(m[1]), y = parseFloat(m[2]);
+            if (!isNaN(x) && !isNaN(y)) pts.push({ x, y });
+        }
+        if (pts.length < degree + 1) return;
+        const X = [], Y = [];
+        for (let i = 0; i <= degree; i++) {
+            X[i] = [];
+            for (let j = 0; j <= degree; j++) X[i][j] = pts.reduce((s, p) => s + Math.pow(p.x, i + j), 0);
+            Y[i] = pts.reduce((s, p) => s + p.y * Math.pow(p.x, i), 0);
+        }
+        let coeffs = math.lusolve(X, Y).map(c => c[0]);
+        this.resCard.innerHTML = `• <b>Polinomio Ajustado Exitosamente</b> (Grado ${degree})`;
+        const xVals = pts.map(p => p.x), minX = Math.min(...xVals) - 1, maxX = Math.max(...xVals) + 1;
+        const curveX = [], curveY = [];
+        for (let i = 0; i <= 150; i++) {
+            const cx = minX + (i * (maxX - minX) / 150);
+            curveX.push(cx);
+            curveY.push(coeffs.reduce((acc, c, idx) => acc + c * Math.pow(cx, idx), 0));
+        }
+        const traces = [
+            { x: pts.map(p => p.x), y: pts.map(p => p.y), mode: 'markers', name: 'Datos', marker: { size: 8, color: '#ef4444' } },
+            { x: curveX, y: curveY, mode: 'lines', name: 'Polinomio', line: { color: '#3b82f6', width: 2 } }
+        ];
+        safePlot(this.plotEl, traces, { paper_bgcolor: '#202020', plot_bgcolor: '#202020', xaxis: { color: '#888', gridcolor: '#303030' }, yaxis: { color: '#888', gridcolor: '#303030' }, margin: { l: 40, r: 20, b: 30, t: 20 } });
+    }
+}
+
+class CurvasBezierModule {
+    init(c, p) {
+        this.plotEl = p;
+        this.panel = new GiovanniContainerSimple({ title: "Curvas Bézier Cúbicas", isOpen: true, width: "100%" });
+        const rowP0 = document.createElement("div"); rowP0.className = "math-row";
+        this.p0x = new GiovanniInputNumber({ label: "P0x", value: 0, step: 0.5 });
+        this.p0y = new GiovanniInputNumber({ label: "P0y", value: 0, step: 0.5 });
+        rowP0.appendChild(this.p0x.element); rowP0.appendChild(this.p0y.element);
+        this.panel.appendChild(rowP0);
+        const rowP1 = document.createElement("div"); rowP1.className = "math-row";
+        this.p1x = new GiovanniInputNumber({ label: "P1x", value: 2, step: 0.5 });
+        this.p1y = new GiovanniInputNumber({ label: "P1y", value: 5, step: 0.5 });
+        rowP1.appendChild(this.p1x.element); rowP1.appendChild(this.p1y.element);
+        this.panel.appendChild(rowP1);
+        const rowP2 = document.createElement("div"); rowP2.className = "math-row";
+        this.p2x = new GiovanniInputNumber({ label: "P2x", value: 6, step: 0.5 });
+        this.p2y = new GiovanniInputNumber({ label: "P2y", value: 5, step: 0.5 });
+        rowP2.appendChild(this.p2x.element); rowP2.appendChild(this.p2y.element);
+        this.panel.appendChild(rowP2);
+        const rowP3 = document.createElement("div"); rowP3.className = "math-row";
+        this.p3x = new GiovanniInputNumber({ label: "P3x", value: 8, step: 0.5 });
+        this.p3y = new GiovanniInputNumber({ label: "P3y", value: 1, step: 0.5 });
+        rowP3.appendChild(this.p3x.element); rowP3.appendChild(this.p3y.element);
+        this.panel.appendChild(rowP3);
+        this.sliderT = new GiovanniSlider({ label: "Parámetro t", min: 0, max: 1, step: 0.01, value: 0.5 });
+        this.panel.appendChild(this.sliderT.element);
+        c.appendChild(this.panel.element);
+        [this.p0x, this.p0y, this.p1x, this.p1y, this.p2x, this.p2y, this.p3x, this.p3y].forEach(el => el.options.onChange = () => this.render());
+        this.sliderT.options.onInput = () => this.render();
+    }
+    render() {
+        if (!this.plotEl || this.plotEl.clientWidth < 10) return;
+        const P0 = [this.p0x.getValue(), this.p0y.getValue()], P1 = [this.p1x.getValue(), this.p1y.getValue()];
+        const P2 = [this.p2x.getValue(), this.p2y.getValue()], P3 = [this.p3x.getValue(), this.p3y.getValue()];
+        const t = this.sliderT.getValue();
+        const calcB = (tau) => {
+            const u = 1 - tau;
+            return [
+                u**3*P0[0] + 3*u**2*tau*P1[0] + 3*u*tau**2*P2[0] + tau**3*P3[0],
+                u**3*P0[1] + 3*u**2*tau*P1[1] + 3*u*tau**2*P2[1] + tau**3*P3[1]
+            ];
+        };
+        const Pt = calcB(t), curveX = [], curveY = [];
+        for (let i = 0; i <= 100; i++) {
+            const p = calcB(i / 100);
+            curveX.push(p[0]); curveY.push(p[1]);
+        }
+        const traces = [
+            { x: [P0[0], P1[0], P2[0], P3[0]], y: [P0[1], P1[1], P2[1], P3[1]], mode: 'lines+markers', name: 'Polígono', line: { dash: 'dot', color: '#888' }, marker: { size: 8, color: '#f59e0b' } },
+            { x: curveX, y: curveY, mode: 'lines', name: 'Bézier', line: { color: '#3b82f6', width: 3 } },
+            { x: [Pt[0]], y: [Pt[1]], mode: 'markers', name: 'B(t)', marker: { size: 10, color: '#ef4444' } }
+        ];
+        safePlot(this.plotEl, traces, { paper_bgcolor: '#202020', plot_bgcolor: '#202020', xaxis: { color: '#888', gridcolor: '#303030' }, yaxis: { color: '#888', gridcolor: '#303030' }, margin: { l: 40, r: 20, b: 30, t: 20 } });
+    }
+}
+
+// =============================================================================
+// 4. INICIALIZACIÓN Y MONTAJE GLOBAL
+// =============================================================================
+document.addEventListener("DOMContentLoaded", () => {
+    const app = new MathUI();
+
+    const SVG_SURF = '<svg viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18s-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18s.41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9z"/></svg>';
+    const SVG_VEC = '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+    const SVG_DERIV = '<svg viewBox="0 0 24 24"><path d="M7 2v2h1v14a4 4 0 0 0 4 4 4 4 0 0 0 4-4V4h1V2h-4v2h1v14a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4h1V2H7z"/></svg>';
+    const SVG_INTEG = '<svg viewBox="0 0 24 24"><path d="M14.5 2C12 2 11 3.5 11 6v12c0 2.5-1 4-3.5 4S4 20.5 4 18h2c0 1.5.5 2 1.5 2 1.5 0 2-1 2-3V6c0-2.5 1-4 3.5-4s3.5 1.5 3.5 4h-2c0-1.5-.5-2-1.5-2z"/></svg>';
+    const SVG_REGR = '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>';
+    const SVG_BEZIER = '<svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM4 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm16-4c-1.1 0-2 .9-2 2 0 .2.03.38.08.56l-5.64 5.64C12.18 10.1 11.83 10 11.5 10c-.33 0-.68.1-1 .2L4.86 4.56C4.91 4.38 5 4.2 5 4c0-1.1-.9-2-2-2S1 2.9 1 4s.9 2 2 2c.2 0 .38-.05.56-.1l5.64 5.64c-.1.32-.2.67-.2 1 0 .33.1.68.2 1l-5.64 5.64c-.18-.05-.36-.08-.56-.08-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2c0-.2-.05-.38-.1-.56l5.64-5.64c.32.1.67.2 1 .2.33 0 .68-.1 1-.2l5.64 5.64c-.05.18-.08.36-.08.56 0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2c-.2 0-.38.05-.56.1l-5.64-5.64c.1-.32.2-.67.2-1 0-.33-.1-.68-.2-1l5.64-5.64c.18.05.36.1.56.1 1.1 0 2-.9 2-2s-.9-2-2-2z"/></svg>';
+
+    app.registerModule("superficies", "Superficie 3D & Mesh", SVG_SURF, new Superficies3DModule());
+    app.registerModule("vectores", "Vectores 3D", SVG_VEC, new Vectores3DModule());
+    app.registerModule("derivadas", "Derivadas 2D", SVG_DERIV, new DerivadasModule());
+    app.registerModule("integrales", "Integrales & Áreas", SVG_INTEG, new IntegralesModule());
+    app.registerModule("regresion", "Regresión Polinómica", SVG_REGR, new RegresionPolinomicaModule());
+    app.registerModule("bezier", "Curvas Bézier", SVG_BEZIER, new CurvasBezierModule());
 });
 </script>
 
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
 </body>
 </html>
